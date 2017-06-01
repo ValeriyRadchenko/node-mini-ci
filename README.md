@@ -16,3 +16,4 @@
 ## Delete a job
  - remove a `<your job name>.json` file from `<YOUR_HOME_DIRECTORY>/jobs` folder and the job will be automatically stopped and removed.
 
+[Link to Docker Hub](https://hub.docker.com/r/vradchenko/node_mini_ci/)
