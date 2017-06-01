@@ -1,6 +1,5 @@
 {
   "name": "example-job",
-  "workingDirectory": "..",
   "git": {
     "url": "bitbucket.org/<USERNAME>/<REPOSITORY NAME>.git",
     "remote": "origin",
@@ -10,7 +9,7 @@
       "password": "<PASSWORD>"
     }
   },
-  "script": "<BASH SCRIPT>",
+  "script": ["<BASH SCRIPTS>"],
   "schedule": {
     "interval": 5000
   }

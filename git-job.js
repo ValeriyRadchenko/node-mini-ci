@@ -6,20 +6,22 @@ const util = require('util');
 const stat = util.promisify(fs.stat);
 const mkdir = util.promisify(fs.mkdir);
 
+let rootDir = path.resolve(process.env.NODE_CI_HOME || '.', 'workspace');
+
 class GitJob {
 
     constructor(job) {
         this.name = job.name;
-        this.interval = job.schedule.interval;
+        this.schedule = job.schedule;
         this.script = job.script;
         this.workingDirectory = job.workingDirectory;
-        this.cwd = path.resolve(this.workingDirectory, job.name);
+        this.cwd = path.resolve(rootDir);
         this.git = job.git;
         this.processes = {};
         this.processBusy = false;
     }
 
-    createProcess(command, subPath = this.name) {
+    createProcess(command, pipeStdOut = false, subPath = this.name) {
         return new Promise((resolve, reject) => {
             let newProcess = exec(command, {cwd: path.resolve(this.cwd, subPath)}, (error, stdout, stderr) => {
                 if (!error) {
@@ -33,7 +35,12 @@ class GitJob {
 
             newProcess.on('close', exitCode => {
                 this.onProcessClose(exitCode, newProcess);
-            })
+            });
+
+            if (pipeStdOut) {
+                newProcess.stdout.pipe(process.stdout);
+                newProcess.stderr.pipe(process.stderr);
+            }
         });
     }
 
@@ -45,7 +52,6 @@ class GitJob {
             let localResult = await this.createProcess('git rev-parse @');
 
             console.log('checking repository...');
-            console.log(remoteResult, localResult, remoteResult.stdout !== localResult.stdout);
 
             if (remoteResult.stdout !== localResult.stdout) {
                 return true;
@@ -64,7 +70,9 @@ class GitJob {
     }
 
     async clone() {
-        return this.createProcess(`git clone https://${this.git.credentials.username}:${this.git.credentials.password}@${this.git.url} ./${this.name}`, '.');
+        return this.createProcess(
+            `git clone https://${this.git.credentials.username}:${this.git.credentials.password}@${this.git.url} ./${this.name}`, false, rootDir
+        );
     }
 
     async executeScript() {
@@ -73,12 +81,25 @@ class GitJob {
             return false;
         }
 
-        return this.createProcess(this.script);
+        if (typeof this.script === 'string') {
+            return this.createProcess(this.script, true);
+        } else {
+            for (let script of this.script) {
+                await this.createProcess(script, true);
+            }
+        }
+
     }
 
     async start() {
 
-        let projectDir = path.resolve(__dirname, this.workingDirectory, this.name);
+        try {
+            await stat(rootDir);
+        } catch (error) {
+            await mkdir(rootDir);
+        }
+
+        let projectDir = path.resolve(rootDir, this.name);
 
         try {
             await stat(projectDir);
@@ -105,7 +126,7 @@ class GitJob {
 
             this.processBusy = false;
 
-        }, this.interval);
+        }, this.schedule.interval);
     }
 
     stop() {
@@ -116,9 +137,7 @@ class GitJob {
     }
 
     onProcessClose(exitCode, childProcess) {
-        console.log(Object.keys(this.processes));
         delete this.processes[childProcess.pid];
-        console.log(Object.keys(this.processes));
     }
 
 }

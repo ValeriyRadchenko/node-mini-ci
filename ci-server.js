@@ -8,10 +8,10 @@ const mkdir = util.promisify(fs.mkdir);
 const readFile = util.promisify(fs.readFile);
 const readdir = util.promisify(fs.readdir);
 
-const jobDir = path.resolve(__dirname, 'jobs');
+const jobDir = (process.env.NODE_CI_HOME) ? path.resolve(process.env.NODE_CI_HOME, 'jobs') : path.resolve(__dirname, 'jobs');
 
 let jobs = {};
-let runnedJobs = {};
+let jobsThatRun = {};
 
 function onJobChanged(job) {
     jobs[job.name] = job;
@@ -21,10 +21,10 @@ async function runJobs() {
     for (let key in jobs) {
         let job = jobs[key];
 
-        if (!runnedJobs[job.name]) {
+        if (!jobsThatRun[job.name]) {
             let gitJob = new GitJob(job);
             await gitJob.start(10000);
-            runnedJobs[job.name] = gitJob;
+            jobsThatRun[job.name] = gitJob;
         }
     }
 }
