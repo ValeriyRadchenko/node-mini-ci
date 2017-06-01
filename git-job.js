@@ -85,7 +85,11 @@ class GitJob {
             return this.createProcess(this.script, true);
         } else {
             for (let script of this.script) {
-                await this.createProcess(script, true);
+                try {
+                    await this.createProcess(script, true);
+                } catch (error) {
+                    console.log('Script error:', error);
+                }
             }
         }
 
