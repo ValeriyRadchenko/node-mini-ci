@@ -4,7 +4,8 @@
   "description": "A simple NodeJS CI server application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ci-server.js"
   },
   "author": "Valerii Radchenko",
   "license": "ISC"
