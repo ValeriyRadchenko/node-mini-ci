@@ -1,5 +1,7 @@
 # Node Mini CI Server
 
+## Warning: *Do not use this in production*
+
 ## Prerequisites
 * NodeJS 8+ installed
 * NPM installed

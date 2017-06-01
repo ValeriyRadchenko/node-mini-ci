@@ -19,9 +19,13 @@ class GitJob {
         this.git = job.git;
         this.processes = {};
         this.processBusy = false;
+        this.stopped = false;
     }
 
     createProcess(command, pipeStdOut = false, subPath = this.name) {
+        console.log('Call createProcess', this.stopped, command);
+        if (this.stopped) return false;
+
         return new Promise((resolve, reject) => {
             let newProcess = exec(command, {cwd: path.resolve(this.cwd, subPath)}, (error, stdout, stderr) => {
                 if (!error) {
@@ -30,6 +34,8 @@ class GitJob {
                     reject(error);
                 }
             });
+
+            console.log('new process created', newProcess.pid, command);
 
             this.processes[newProcess.pid] = newProcess;
 
@@ -77,7 +83,7 @@ class GitJob {
 
     async executeScript() {
 
-        if (!this.script) {
+        if (!this.script || this.stopped) {
             return false;
         }
 
@@ -134,13 +140,20 @@ class GitJob {
     }
 
     stop() {
+        this.stopped = true;
         clearTimeout(this.intervalId);
+
+        console.log(Object.keys(this.processes));
         for (let key in this.processes) {
-            this.processes[key].kill('SIGHUP');
+            this.processes[key].kill('SIGTERM');
+            console.log(key);
         }
+
+        return true;
     }
 
     onProcessClose(exitCode, childProcess) {
+        console.log('process closed', childProcess.pid, exitCode);
         delete this.processes[childProcess.pid];
     }
 

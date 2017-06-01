@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const GitJob = require('./git-job');
+const DirectoryWatcher = require('./directory-watcher');
 
 const stat = util.promisify(fs.stat);
 const mkdir = util.promisify(fs.mkdir);
@@ -13,19 +14,26 @@ const jobDir = (process.env.NODE_CI_HOME) ? path.resolve(process.env.NODE_CI_HOM
 let jobs = {};
 let jobsThatRun = {};
 
-function onJobChanged(job) {
-    jobs[job.name] = job;
-}
+
 
 async function runJobs() {
     for (let key in jobs) {
         let job = jobs[key];
 
-        if (!jobsThatRun[job.name]) {
+        if (!jobsThatRun[job.fileName]) {
             let gitJob = new GitJob(job);
+            jobsThatRun[job.fileName] = gitJob;
             await gitJob.start(10000);
-            jobsThatRun[job.name] = gitJob;
         }
+    }
+}
+
+async function onJobChanged(job) {
+    console.log();
+    if (!jobs[job.fileName]) {
+        jobs[job.fileName] = job;
+
+        // await runJobs();
     }
 }
 
@@ -33,7 +41,9 @@ async function readJobFiles(jobFiles) {
     return await Promise.all(jobFiles.map(jobFileName => {
         return readFile(path.resolve(jobDir, jobFileName))
             .then(jobContent => {
-                return JSON.parse(jobContent);
+                let job = JSON.parse(jobContent);
+                job.fileName = jobFileName;
+                return job;
             })
             .catch(error => console.log('Cannot read and parse file', error));
     }));
@@ -80,8 +90,34 @@ async function onJobDirChange(eventType, filename) {
         try {
             let oldJobs = await readJobFiles(jobFiles);
             oldJobs.forEach(job => {
-                jobs[job.name] = job;
+                jobs[job.fileName] = job;
             });
+
+            let watcher = new DirectoryWatcher(jobDir);
+
+            watcher.on('new', (name) => {
+                console.log('new', name);
+            });
+
+            watcher.on('remove', async (name) => {
+                console.log('STTTTTTTTOOOOOOOOOOOOOPPPPPPPPPPPPP');
+                try {
+                    jobsThatRun[name].stop();
+                } catch (error) {
+                    console.log('Catched', error);
+                    // console.log(`Job ${jobsThatRun[name].name} has been removed`);
+                }
+                delete jobsThatRun[name];
+            });
+
+            setTimeout(() => {
+                console.log('STOP');
+                jobsThatRun[Object.keys(jobsThatRun)[0]].stop();
+            }, 30000);
+
+            await watcher.watch();
+
+            console.log('Waiting new jobs...', jobDir);
 
             await runJobs();
         } catch (error) {
@@ -89,6 +125,7 @@ async function onJobDirChange(eventType, filename) {
         }
     }
 
-    // fs.watch(jobDir, onJobDirChange);
+
+
 })();
 
