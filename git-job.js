@@ -2,6 +2,7 @@ const exec = require('child_process').exec;
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+const os = require('os');
 
 const stat = util.promisify(fs.stat);
 const mkdir = util.promisify(fs.mkdir);
@@ -20,14 +21,17 @@ class GitJob {
         this.processes = {};
         this.processBusy = false;
         this.stopped = false;
+        this.platform = os.platform();
     }
 
     createProcess(command, pipeStdOut = false, subPath = this.name) {
-        console.log('Call createProcess', this.stopped, command);
-        if (this.stopped) return false;
+
+        if (this.stopped) {
+            return false;
+        }
 
         return new Promise((resolve, reject) => {
-            let newProcess = exec(command, {cwd: path.resolve(this.cwd, subPath)}, (error, stdout, stderr) => {
+            let newProcess = exec(command, {cwd: path.resolve(this.cwd, subPath), detached: true}, (error, stdout, stderr) => {
                 if (!error) {
                     resolve({stdout, stderr});
                 } else {
@@ -35,9 +39,7 @@ class GitJob {
                 }
             });
 
-            console.log('new process created', newProcess.pid, command);
-
-            this.processes[newProcess.pid] = newProcess;
+            this.saveProcess(newProcess);
 
             newProcess.on('close', exitCode => {
                 this.onProcessClose(exitCode, newProcess);
@@ -48,6 +50,10 @@ class GitJob {
                 newProcess.stderr.pipe(process.stderr);
             }
         });
+    }
+
+    saveProcess(newProcess) {
+        this.processes[newProcess.pid] = newProcess;
     }
 
     async check() {
@@ -94,7 +100,9 @@ class GitJob {
                 try {
                     await this.createProcess(script, true);
                 } catch (error) {
-                    console.log('Script error:', error);
+                    if (!this.stopped) {
+                        console.log('Script error:', error);
+                    }
                 }
             }
         }
@@ -102,6 +110,7 @@ class GitJob {
     }
 
     async start() {
+        this.stopped = false;
 
         try {
             await stat(rootDir);
@@ -119,10 +128,13 @@ class GitJob {
             await this.executeScript();
         }
 
+        if (this.stopped) {
+            return false;
+        }
+
         this.intervalId = setInterval(async () => {
 
             if (this.processBusy) {
-                console.log('process is busy');
                 return false;
             }
 
@@ -137,23 +149,26 @@ class GitJob {
             this.processBusy = false;
 
         }, this.schedule.interval);
+
     }
 
     stop() {
         this.stopped = true;
-        clearTimeout(this.intervalId);
+        clearInterval(this.intervalId);
 
-        console.log(Object.keys(this.processes));
-        for (let key in this.processes) {
-            this.processes[key].kill('SIGTERM');
-            console.log(key);
+        for (let pid in this.processes) {
+            if (this.platform === 'win32') {
+                exec(`taskkill /pid ${pid} /T /F`);
+            } else {
+                this.processes.kill('SIGINT');
+            }
+
         }
 
         return true;
     }
 
     onProcessClose(exitCode, childProcess) {
-        console.log('process closed', childProcess.pid, exitCode);
         delete this.processes[childProcess.pid];
     }
 

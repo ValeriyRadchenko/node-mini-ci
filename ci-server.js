@@ -100,7 +100,7 @@ async function onJobDirChange(eventType, filename) {
             });
 
             watcher.on('remove', async (name) => {
-                console.log('STTTTTTTTOOOOOOOOOOOOOPPPPPPPPPPPPP');
+                console.log('STOP');
                 try {
                     jobsThatRun[name].stop();
                 } catch (error) {
@@ -109,11 +109,6 @@ async function onJobDirChange(eventType, filename) {
                 }
                 delete jobsThatRun[name];
             });
-
-            setTimeout(() => {
-                console.log('STOP');
-                jobsThatRun[Object.keys(jobsThatRun)[0]].stop();
-            }, 30000);
 
             await watcher.watch();
 
