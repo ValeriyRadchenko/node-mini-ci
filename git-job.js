@@ -1,67 +1,35 @@
-const exec = require('child_process').exec;
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const os = require('os');
+const Job = require('./application/job');
 
 const stat = util.promisify(fs.stat);
 const mkdir = util.promisify(fs.mkdir);
 
 let rootDir = path.resolve(process.env.NODE_CI_HOME || '.', 'workspace');
 
-class GitJob {
+class GitJob extends Job {
 
     constructor(job) {
+        super(job.name, path.resolve(rootDir));
+
         this.name = job.name;
         this.schedule = job.schedule;
-        this.script = job.script;
+        this.scripts = job.scripts;
         this.workingDirectory = job.workingDirectory;
         this.cwd = path.resolve(rootDir);
         this.git = job.git;
         this.processes = {};
         this.processBusy = false;
         this.stopped = false;
-        this.platform = os.platform();
-    }
-
-    createProcess(command, pipeStdOut = false, subPath = this.name) {
-
-        if (this.stopped) {
-            return false;
-        }
-
-        return new Promise((resolve, reject) => {
-            let newProcess = exec(command, {cwd: path.resolve(this.cwd, subPath), detached: true}, (error, stdout, stderr) => {
-                if (!error) {
-                    resolve({stdout, stderr});
-                } else {
-                    reject(error);
-                }
-            });
-
-            this.saveProcess(newProcess);
-
-            newProcess.on('close', exitCode => {
-                this.onProcessClose(exitCode, newProcess);
-            });
-
-            if (pipeStdOut) {
-                newProcess.stdout.pipe(process.stdout);
-                newProcess.stderr.pipe(process.stderr);
-            }
-        });
-    }
-
-    saveProcess(newProcess) {
-        this.processes[newProcess.pid] = newProcess;
     }
 
     async check() {
         try {
-            await this.createProcess('git remote update');
+            await this.runCommand('git remote update');
 
-            let remoteResult = await this.createProcess(`git rev-parse ${this.git.remote}/${this.git.branch}`);
-            let localResult = await this.createProcess('git rev-parse @');
+            let remoteResult = await this.runCommand(`git rev-parse ${this.git.remote}/${this.git.branch}`);
+            let localResult = await this.runCommand('git rev-parse @');
 
             console.log('checking repository...');
 
@@ -78,33 +46,38 @@ class GitJob {
     }
 
     async pull() {
-        return this.createProcess(`git pull ${this.git.remote} ${this.git.branch}`);
+        return this.runCommand(`git pull ${this.git.remote} ${this.git.branch}`);
     }
 
     async clone() {
-        return this.createProcess(
+        return this.runCommand(
             `git clone https://${this.git.credentials.username}:${this.git.credentials.password}@${this.git.url} ./${this.name}`, false, rootDir
         );
     }
 
     async executeScript() {
 
-        if (!this.script || this.stopped) {
+        if (!this.scripts || this.scripts.length < 1 || this.stopped) {
             return false;
         }
 
-        if (typeof this.script === 'string') {
-            return this.createProcess(this.script, true);
+        if (typeof this.scripts === 'string') {
+            return this.runCommand(this.scripts, true);
         } else {
-            for (let script of this.script) {
+
+            for (let script of this.scripts) {
                 try {
-                    await this.createProcess(script, true);
+                    console.log('SCRIPT', script);
+                    if (!this.stopped) {
+                        await this.runCommand(script, true);
+                    }
                 } catch (error) {
                     if (!this.stopped) {
                         console.log('Script error:', error);
                     }
                 }
             }
+
         }
 
     }
@@ -155,23 +128,39 @@ class GitJob {
     stop() {
         this.stopped = true;
         clearInterval(this.intervalId);
-
-        for (let pid in this.processes) {
-            if (this.platform === 'win32') {
-                exec(`taskkill /pid ${pid} /T /F`);
-            } else {
-                this.processes.kill('SIGINT');
-            }
-
-        }
-
+        super.stop();
         return true;
-    }
-
-    onProcessClose(exitCode, childProcess) {
-        delete this.processes[childProcess.pid];
     }
 
 }
 
 module.exports = GitJob;
+
+
+// createProcess(command, pipeStdOut = false, subPath = this.name) {
+//
+//     if (this.stopped) {
+//         return false;
+//     }
+//
+//     return new Promise((resolve, reject) => {
+//         let newProcess = exec(command, {cwd: path.resolve(this.cwd, subPath), detached: true}, (error, stdout, stderr) => {
+//             if (!error) {
+//                 resolve({stdout, stderr});
+//             } else {
+//                 reject(error);
+//             }
+//         });
+//
+//         this.saveProcess(newProcess);
+//
+//         newProcess.on('close', exitCode => {
+//             this.onProcessClose(exitCode, newProcess);
+//         });
+//
+//         if (pipeStdOut) {
+//             newProcess.stdout.pipe(process.stdout);
+//             newProcess.stderr.pipe(process.stderr);
+//         }
+//     });
+// }
