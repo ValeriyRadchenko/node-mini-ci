@@ -9,7 +9,7 @@
       "password": "<PASSWORD>"
     }
   },
-  "script": ["<BASH SCRIPTS>"],
+  "scripts": ["<BASH SCRIPTS>"],
   "schedule": {
     "interval": 5000
   }

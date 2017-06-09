@@ -135,32 +135,3 @@ class GitJob extends Job {
 }
 
 module.exports = GitJob;
-
-
-// createProcess(command, pipeStdOut = false, subPath = this.name) {
-//
-//     if (this.stopped) {
-//         return false;
-//     }
-//
-//     return new Promise((resolve, reject) => {
-//         let newProcess = exec(command, {cwd: path.resolve(this.cwd, subPath), detached: true}, (error, stdout, stderr) => {
-//             if (!error) {
-//                 resolve({stdout, stderr});
-//             } else {
-//                 reject(error);
-//             }
-//         });
-//
-//         this.saveProcess(newProcess);
-//
-//         newProcess.on('close', exitCode => {
-//             this.onProcessClose(exitCode, newProcess);
-//         });
-//
-//         if (pipeStdOut) {
-//             newProcess.stdout.pipe(process.stdout);
-//             newProcess.stderr.pipe(process.stderr);
-//         }
-//     });
-// }
