@@ -4,9 +4,14 @@
   "description": "A simple NodeJS CI server application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha ./tests/*.spec.js",
     "start": "node ci-server.js"
   },
   "author": "Valerii Radchenko",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.0.2",
+    "chai-as-promised": "^6.0.0",
+    "mocha": "^3.4.2"
+  }
 }
