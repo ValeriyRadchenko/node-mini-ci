@@ -6,18 +6,18 @@ const stat = util.promisify(pidusage.stat);
 
 class Monitoring {
 
-    constructor() {
+    constructor(useMonitoring) {
         this.processRegestry = {};
-        this.cliView = new CLIView(['pid', 'cpu', 'memory'], 20);
+        this.cliView = (useMonitoring) ? new CLIView(['pid', 'cpu', 'memory'], 20) : null;
     }
 
     add(osProcess) {
         this.processRegestry[osProcess.pid] = osProcess;
 
-        this.cliView.push([osProcess.pid, 0, 0]);
+        this.cliView && this.cliView.push([osProcess.pid, 0, 0]);
 
         osProcess.on('close', processData => {
-            this.cliView.remove(processData.pid);
+            this.cliView && this.cliView.remove(processData.pid);
             pidusage.unmonitor(processData.pid);
             delete this.processRegestry[processData.pid];
         });
@@ -39,7 +39,7 @@ class Monitoring {
             osProcessUsage.memory = +(osProcessUsage.memory / 1024 / 1024).toFixed(2);
             osProcessUsage.cpu = +(osProcessUsage.cpu.toFixed(2));
 
-            this.cliView.push([pid, osProcessUsage.cpu, osProcessUsage.memory + ' MB']);
+            this.cliView && this.cliView.push([pid, osProcessUsage.cpu, osProcessUsage.memory + ' MB']);
 
         }
 
