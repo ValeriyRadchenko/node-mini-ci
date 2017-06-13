@@ -1,11 +1,12 @@
 const OSProcess = require('../entities/os-process');
 const path = require('path');
+const monitoring = require('../monitoring/monitoring');
 
 class OSProcessFactory {
 
     constructor(name, workingDirectory) {
         this.name = name;
-        this.workingDirectory = workingDirectory;
+        this.workingDirectory = path.resolve(workingDirectory);
 
         this.processRegestry = {};
     }
@@ -17,6 +18,8 @@ class OSProcessFactory {
         osProcess.on('close', processData => {
             delete this.processRegestry[processData.pid];
         });
+
+        monitoring.add(osProcess);
 
         return osProcess;
     }
