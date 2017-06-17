@@ -1,7 +1,7 @@
 const config = require('../../config');
 const pidusage = require('pidusage');
 const util = require('util');
-const helpers = require('../helpers/helpers');
+const helpers = require('./helpers');
 const CLIView = require('./cli-view');
 
 const stat = util.promisify(pidusage.stat);
@@ -47,7 +47,7 @@ class Monitoring {
             osProcessUsage.cpu = +(osProcessUsage.cpu.toFixed(2));
 
             this.cliView && this.cliView.push([
-                pid, 
+                pid,
                 osProcessUsage.cpu,
                 `${osProcessUsage.memory} ${helpers.getShortBiteUnitName(this.memoryUnit)}`
             ]);
