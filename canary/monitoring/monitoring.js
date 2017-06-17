@@ -1,5 +1,7 @@
+const config = require('../../config');
 const pidusage = require('pidusage');
 const util = require('util');
+const helpers = require('../helpers/helpers');
 const CLIView = require('./cli-view');
 
 const stat = util.promisify(pidusage.stat);
@@ -8,7 +10,12 @@ class Monitoring {
 
     constructor(useMonitoring) {
         this.processRegestry = {};
-        this.cliView = (useMonitoring) ? new CLIView(['pid', 'cpu', 'memory'], 20) : null;
+
+        this.cliView = (useMonitoring) ?
+            new CLIView(['pid', 'cpu', 'memory'], config.monitoring.columnWidth) :
+            null;
+
+        this.memoryUnit = config.monitoring.memoryUnit;
     }
 
     add(osProcess) {
@@ -25,7 +32,7 @@ class Monitoring {
         if (Object.keys(this.processRegestry).length === 1) {
             this.monitor()
                 .then()
-                .catch(console.log);
+                .catch(console.error);
         }
     }
 
@@ -36,16 +43,20 @@ class Monitoring {
 
         for (let pid in this.processRegestry) {
             let osProcessUsage = await stat(pid);
-            osProcessUsage.memory = +(osProcessUsage.memory / 1024 / 1024).toFixed(2);
+            osProcessUsage.memory = +(osProcessUsage.memory / helpers.getMemoryMeasure(this.memoryUnit)).toFixed(2);
             osProcessUsage.cpu = +(osProcessUsage.cpu.toFixed(2));
 
-            this.cliView && this.cliView.push([pid, osProcessUsage.cpu, osProcessUsage.memory + ' MB']);
+            this.cliView && this.cliView.push([
+                pid, 
+                osProcessUsage.cpu,
+                `${osProcessUsage.memory} ${helpers.getShortBiteUnitName(this.memoryUnit)}`
+            ]);
 
         }
 
         setTimeout(async () => {
             await this.monitor();
-        }, 300);
+        }, config.monitoring.updateDelay);
     }
 
 }
@@ -53,3 +64,4 @@ class Monitoring {
 let monitoring = new Monitoring();
 
 module.exports = monitoring;
+
