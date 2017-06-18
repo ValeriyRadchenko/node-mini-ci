@@ -13,7 +13,10 @@ class CLIView {
         this.colWidth = colWidth;
         this.init();
 
-        process.on('exit', () => this.reset());
+        process.on('exit', () => {
+            this.reset();
+            charm.cursor(true);
+        });
     }
 
     push(osProcessUsage) {
