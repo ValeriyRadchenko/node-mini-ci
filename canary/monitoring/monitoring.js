@@ -61,7 +61,5 @@ class Monitoring {
 
 }
 
-let monitoring = new Monitoring(config.monitoring.showMonitoring);
-
-module.exports = monitoring;
+module.exports = Monitoring;
 

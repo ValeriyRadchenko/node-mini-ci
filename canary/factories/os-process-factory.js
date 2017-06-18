@@ -19,8 +19,6 @@ class OSProcessFactory {
             delete this.processRegestry[processData.pid];
         });
 
-        monitoring.add(osProcess);
-
         return osProcess;
     }
 
