@@ -1,4 +1,4 @@
 .idea
 node_modules
-jobs
+./jobs
 test-job.json
