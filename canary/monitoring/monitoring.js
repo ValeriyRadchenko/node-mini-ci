@@ -8,10 +8,10 @@ const stat = util.promisify(pidusage.stat);
 
 class Monitoring {
 
-    constructor(useMonitoring) {
+    constructor(showMonitoring) {
         this.processRegestry = {};
 
-        this.cliView = (useMonitoring) ?
+        this.cliView = (showMonitoring) ?
             new CLIView(['pid', 'cpu', 'memory'], config.monitoring.columnWidth) :
             null;
 
@@ -61,7 +61,7 @@ class Monitoring {
 
 }
 
-let monitoring = new Monitoring();
+let monitoring = new Monitoring(config.monitoring.showMonitoring);
 
 module.exports = monitoring;
 
