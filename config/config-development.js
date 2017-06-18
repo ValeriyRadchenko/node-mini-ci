@@ -1,6 +1,7 @@
 module.exports = {
     watcher: {
-        interval: 5000 // milliseconds
+        interval: 5000, // milliseconds
+        pattern: 'json' // job files ending
     },
     monitoring: {
         showMonitoring: true,

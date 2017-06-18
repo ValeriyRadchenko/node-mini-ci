@@ -17,6 +17,7 @@ class DirectoryWatcher extends EventEmitter {
         this.dirPath = dirPath;
         this.intervalId = null;
         this.filesSnapshot = [];
+        this.pattern = new RegExp(`${config.pattern}$`);
     }
 
     async watch() {
@@ -40,13 +41,14 @@ class DirectoryWatcher extends EventEmitter {
             let files = await readdir(this.dirPath);
 
             for (let file of files) {
-                if (this.filesSnapshot.indexOf(file) < 0) {
+                if (this.filesSnapshot.indexOf(file) < 0 && this.pattern.test(file)) {
+                    console.log('add', file);
                     this.emit('new', file);
                 }
             }
 
             for (let file of this.filesSnapshot) {
-                if (files.indexOf(file) < 0) {
+                if (files.indexOf(file) < 0 && this.pattern.test(file)) {
                     this.emit('remove', file);
                 }
             }
