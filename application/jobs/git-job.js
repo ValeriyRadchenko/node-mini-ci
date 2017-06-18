@@ -7,7 +7,8 @@ class GitJob extends Job {
     }
 
     async init() {
-        let { git } = this.params;
+        const { git } = this.params;
+
         try {
             await this.clone();
         } catch (error) {
@@ -29,12 +30,60 @@ class GitJob extends Job {
     }
 
     async condition() {
-        console.log('condition');
-        return true;
+        const { git } = this.params;
+
+        console.log('checking repository...');
+
+        try {
+            await this.osProcessFactory
+                .createProcess('git remote update')
+                .wait();
+
+            let remoteResult = await this.osProcessFactory
+                .createProcess(`git rev-parse ${git.remote}/${git.branch}`)
+                .wait();
+
+            let localResult = await this.osProcessFactory
+                .createProcess('git rev-parse @')
+                .wait();
+
+            if (remoteResult.stdout !== localResult.stdout) {
+                return true;
+            }
+
+            return false;
+
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
     }
 
     async action() {
-        console.log('action');
+        const { scripts } = this.params;
+
+        if (!scripts || scripts.length < 1) {
+            return false;
+        }
+
+        await this.pull();
+
+        if (typeof scripts === 'string') {
+            return this.osProcessFactory
+                .createProcess(scripts)
+                .wait();
+        }
+
+        for (let script of scripts) {
+            try {
+                await this.osProcessFactory
+                    .createProcess(script)
+                    .wait();
+            } catch (error) {
+                console.log('Script error:', error);
+            }
+        }
+
     }
 
     async clone() {

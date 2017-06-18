@@ -20,7 +20,7 @@ directoryWatcher.on('new', fileName => {
         [
             path.resolve(JOBS_BASE_DIR, fileName)
         ],
-        {stdio: 'ignore'}
+        // {stdio: 'ignore'}
     );
 
     jobs[fileName] = { job: child, protocol: getProtocol(child) };
