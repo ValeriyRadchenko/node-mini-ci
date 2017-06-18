@@ -1,6 +1,6 @@
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const OSProcessFactory = require('../canary/factories/os-process-factory');
+const OSProcessFactory = require('../application/factories/os-process-factory');
 
 chai.use(chaiAsPromised);
 chai.should();

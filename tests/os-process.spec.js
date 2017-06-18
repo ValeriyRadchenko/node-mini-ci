@@ -1,6 +1,6 @@
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const OSProcess = require('../canary/entities/os-process');
+const OSProcess = require('../application/entities/os-process');
 
 chai.use(chaiAsPromised);
 chai.should();

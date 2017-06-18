@@ -1,41 +1,41 @@
-const OSProcess = require('../os-process');
-const EventEmitter = require('events');
+const OSProcess = require('../entities/os-process');
 const path = require('path');
+const { getProtocol } = require('../connection/root-protocol');
 
-class OSProcessFactory extends EventEmitter {
+class OSProcessFactory {
 
-    constructor(cwd) {
-        super();
-        this.cwd = cwd;
+    constructor(name, workingDirectory) {
+        this.name = name;
+        this.workingDirectory = path.resolve(workingDirectory);
+        this.protocol = getProtocol();
+
+        this.processRegestry = {};
     }
 
-    executeCommand(command, subCwd = this.name) {
-
-        let stdout = '', stderr = '';
-
-        let osProcess = new OSProcess(path.resolve(this.cwd, subCwd));
-        let systemProcess = osProcess.execute(command);
-
-        systemProcess.stdout.on('data', (data) => {
-            stdout += data;
-            osProcess.emit('stdout', data);
-        });
-
-        systemProcess.stderr.on('data', (data) => {
-            stderr += data;
-            osProcess.emit('stderr', data);
-        });
-
-        systemProcess.on('close', exitCode => {
-            osProcess.emit('close', {
-                exitCode,
-                pid: systemProcess.pid,
-                stdout,
-                stderr
-            });
+    createProcess(command, subDirectory = this.name) {
+        let osProcess = new OSProcess(command, path.resolve(this.workingDirectory, subDirectory));
+        this.processRegestry[osProcess.pid] = osProcess;
+        this.protocol.static('process.created', {pid: osProcess.pid, command});
+        osProcess.on('close', processData => {
+            delete this.processRegestry[processData.pid];
         });
 
         return osProcess;
+    }
+
+    getRunProcess(pid) {
+        if (typeof pid !== 'number') {
+            throw new Error('pid must be a number');
+        }
+
+        return this.processRegestry[pid];
+    }
+
+    terminate() {
+        return Promise.all(Object.keys(this.processRegestry)
+            .map(pid => {
+                return this.processRegestry[pid].terminate();
+            }));
     }
 
 }
