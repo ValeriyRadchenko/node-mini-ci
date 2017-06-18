@@ -43,7 +43,7 @@ class Job {
     stop() {
         this.stopped = true;
         clearTimeout(this.timerId);
-        this.osProcessFactory.terminate();
+        return this.osProcessFactory.terminate();
     }
 
 }

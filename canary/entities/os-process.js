@@ -51,18 +51,23 @@ class OSProcess extends EventEmitter {
     }
 
     terminate() {
-        if (!this.systemProcess) {
-            return;
-        }
+        return new Promise(resolve => {
+            if (!this.systemProcess) {
+                return;
+            }
 
-        if (os.platform() === 'win32') {
-            exec(`taskkill /pid ${this.systemProcess.pid} /T /F`);
-        } else {
-            this.systemProcess.kill('SIGINT');
-        }
+            if (os.platform() === 'win32') {
+                exec(`taskkill /pid ${this.systemProcess.pid} /T /F`, () => {
+                    resolve();
+                });
+            } else {
+                this.systemProcess.kill('SIGINT');
+                resolve();
+            }
 
-        this.stdout = '';
-        this.systemProcess = null;
+            this.stdout = '';
+            this.systemProcess = null;
+        });
     }
 
 }

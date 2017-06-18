@@ -1,12 +1,13 @@
 const OSProcess = require('../entities/os-process');
 const path = require('path');
-const monitoring = require('../monitoring/monitoring');
+const { getProtocol } = require('../connection/root-protocol');
 
 class OSProcessFactory {
 
     constructor(name, workingDirectory) {
         this.name = name;
         this.workingDirectory = path.resolve(workingDirectory);
+        this.protocol = getProtocol();
 
         this.processRegestry = {};
     }
@@ -14,7 +15,7 @@ class OSProcessFactory {
     createProcess(command, subDirectory = this.name) {
         let osProcess = new OSProcess(command, path.resolve(this.workingDirectory, subDirectory));
         this.processRegestry[osProcess.pid] = osProcess;
-
+        this.protocol.static('process.created', {pid: osProcess.pid, command});
         osProcess.on('close', processData => {
             delete this.processRegestry[processData.pid];
         });
@@ -31,10 +32,10 @@ class OSProcessFactory {
     }
 
     terminate() {
-        Object.keys(this.processRegestry)
-            .forEach(pid => {
-                this.processRegestry[pid].terminate();
-            });
+        return Promise.all(Object.keys(this.processRegestry)
+            .map(pid => {
+                return this.processRegestry[pid].terminate();
+            }));
     }
 
 }
