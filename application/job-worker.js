@@ -1,15 +1,28 @@
+const jobParamsFileName = process.argv[2];
 const path = require('path');
+const fs = require('fs');
+const util = require('util');
 const OSProcessFactory = require('./factories/os-process-factory');
-const Job = require(path.resolve(__dirname, 'jobs', process.argv[2]));
 const { getProtocol } = require('./connection/root-protocol');
 
-let jobParams = require('../jobs/test-job.json');
+let Job = null;
+
+let jobParams = null;
+try {
+    jobParams = JSON.parse(fs.readFileSync(jobParamsFileName, 'utf-8'));
+    Job = require(path.resolve(__dirname, 'jobs', jobParams.type));
+} catch (error) {
+    console.error(error);
+    process.exit(1);
+}
+
 const protocol = getProtocol();
 
 protocol.info({
     pid: process.pid,
     message: `${process.argv[2]} is started`
 });
+
 
 const osProcessFactory = new OSProcessFactory(jobParams.name, '.');
 let job = new Job(osProcessFactory, jobParams);

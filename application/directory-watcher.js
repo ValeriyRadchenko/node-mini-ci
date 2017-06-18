@@ -30,7 +30,7 @@ class DirectoryWatcher extends EventEmitter {
                 throw new Error(`${this.dirPath} is not directory`);
             }
 
-            this.filesSnapshot = await readdir(this.dirPath);
+            // this.filesSnapshot = await readdir(this.dirPath);
         } catch (error) {
             console.log(error);
         }

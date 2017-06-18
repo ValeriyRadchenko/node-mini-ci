@@ -1,5 +1,6 @@
 {
   "name": "example-job",
+  "type": "git-job",
   "git": {
     "url": "bitbucket.org/<USERNAME>/<REPOSITORY NAME>.git",
     "remote": "origin",
