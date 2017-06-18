@@ -1,4 +1,4 @@
-const config = require('../../config');
+const config = require('../../config').monitoring;
 const pidusage = require('pidusage');
 const util = require('util');
 const helpers = require('./helpers');
@@ -12,10 +12,10 @@ class Monitoring {
         this.processRegistry = {};
 
         this.cliView = (showMonitoring) ?
-            new CLIView(['pid', 'cpu', 'memory'], config.monitoring.columnWidth) :
+            new CLIView(['pid', 'cpu', 'memory'], config.columnWidth) :
             null;
 
-        this.memoryUnit = config.monitoring.memoryUnit;
+        this.memoryUnit = config.memoryUnit;
     }
 
     add(osProcess) {
@@ -62,7 +62,7 @@ class Monitoring {
 
         setTimeout(async () => {
             await this.monitor();
-        }, config.monitoring.updateDelay);
+        }, config.updateDelay);
     }
 
 }

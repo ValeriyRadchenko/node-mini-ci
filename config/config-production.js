@@ -1,4 +1,7 @@
 module.exports = {
+    watcher: {
+        interval: 5000 // milliseconds
+    },
     monitoring: {
         showMonitoring: true,
         columnWidth: 20, // pixels

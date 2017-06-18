@@ -40,3 +40,5 @@ directoryWatcher.on('remove', fileName => {
 
 directoryWatcher.watch()
     .catch(error => console.error);
+
+console.log('ci server is started,', `process id is ${process.pid}`);

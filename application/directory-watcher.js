@@ -2,11 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const EventEmitter = require('events');
+const config = require('../config').watcher;
 
 const readdir = util.promisify(fs.readdir);
 const stat = util.promisify(fs.stat);
 
-const interval = 5000;
+const INTERVAL = (config.interval && config.interval > 3000) ? config.interval : 3000;
 
 class DirectoryWatcher extends EventEmitter {
 
@@ -51,7 +52,7 @@ class DirectoryWatcher extends EventEmitter {
             }
 
             this.filesSnapshot = files;
-        }, interval);
+        }, INTERVAL);
     }
 
     stopWatching() {
