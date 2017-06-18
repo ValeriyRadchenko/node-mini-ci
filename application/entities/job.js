@@ -37,7 +37,7 @@ class Job {
 
         this.timerId = setTimeout(async () => {
             await this.tick();
-        }, 3000);
+        }, this.params.schedule.interval);
     }
 
     stop() {
