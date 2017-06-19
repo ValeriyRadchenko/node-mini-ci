@@ -3,6 +3,9 @@ module.exports = {
         interval: 5000, // milliseconds
         pattern: 'json' // job files ending
     },
+    logger: {
+        level: 'info', // info | debug | warning | error
+    },
     monitoring: {
         showMonitoring: true,
         columnWidth: 20, // pixels

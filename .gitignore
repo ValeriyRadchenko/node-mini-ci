@@ -2,3 +2,5 @@
 node_modules
 ./jobs
 test-job.json
+logs
+*.log
