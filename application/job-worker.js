@@ -5,6 +5,9 @@ const util = require('util');
 const OSProcessFactory = require('./factories/os-process-factory');
 const { getProtocol } = require('./connection/root-protocol');
 
+const { NODE_CI_HOME } = process.env;
+let workingDirecory = (NODE_CI_HOME) ? path.resolve(NODE_CI_HOME, 'workspace') : '.';
+
 let Job = null;
 
 let jobParams = null;
@@ -24,7 +27,7 @@ protocol.info({
 });
 
 
-const osProcessFactory = new OSProcessFactory(jobParams.name, '.');
+const osProcessFactory = new OSProcessFactory(jobParams.name, workingDirecory);
 let job = new Job(osProcessFactory, jobParams);
 
 process.on('exit', code => {

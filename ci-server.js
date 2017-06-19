@@ -4,8 +4,24 @@ const { fork } = require('child_process');
 const DirectoryWatcher = require('./application/directory-watcher');
 const { getProtocol } = require('./application/connection/root-protocol');
 
-const JOBS_BASE_DIR = path.resolve(__dirname, 'jobs');
-const directoryWatcher = new DirectoryWatcher(JOBS_BASE_DIR);
+let jobsBaseDir = path.resolve(__dirname, 'jobs');
+
+if (process.env.NODE_CI_HOME) {
+    let homeDir = path.resolve(process.env.NODE_CI_HOME);
+
+    if (!fs.statSync(path.join(homeDir, 'jobs'))) {
+        fs.mkdirSync(path.join(homeDir, 'jobs'));
+    }
+
+    if (!fs.statSync(path.join(homeDir, 'workspace'))) {
+        fs.mkdirSync(path.join(homeDir, 'workspace'));
+    }
+
+    jobsBaseDir = path.join(homeDir, 'jobs');
+}
+
+const directoryWatcher = new DirectoryWatcher(jobsBaseDir);
+
 
 let jobs = {};
 
@@ -18,7 +34,7 @@ directoryWatcher.on('new', fileName => {
     let child = fork(
         path.resolve(__dirname, 'application', 'job-worker.js'),
         [
-            path.resolve(JOBS_BASE_DIR, fileName)
+            path.resolve(jobsBaseDir, fileName)
         ],
         // {stdio: 'ignore'}
     );

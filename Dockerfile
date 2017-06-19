@@ -1,4 +1,4 @@
-FROM node:8.0-slim
+FROM node:8.1-slim
 
 RUN apt-get -qq update && \
     apt-get -qq install git
