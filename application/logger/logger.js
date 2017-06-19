@@ -31,7 +31,7 @@ class Logger {
         }
 
         let isoTime = new Date().toISOString();
-        let logItem = `[${isoTime}][${type}] -- ${message.toString()}\n`;
+        let logItem = `[${isoTime}](${type}) -- ${message.toString()}\n`;
 
         for (let stream of this.streams) {
             stream.write(logItem);
