@@ -2,29 +2,24 @@ const config = require('../../config').monitoring;
 const pidusage = require('pidusage');
 const util = require('util');
 const helpers = require('./helpers');
-const CLIView = require('./cli-view');
+const { getProtocol } = require('../connection/root-protocol');
 
 const stat = util.promisify(pidusage.stat);
 
 class Monitoring {
 
-    constructor(showMonitoring) {
+    constructor() {
         this.processRegistry = {};
-
-        this.cliView = (showMonitoring) ?
-            new CLIView(['pid', 'cpu', 'memory'], config.columnWidth) :
-            null;
-
+        this.protocol = getProtocol();
         this.memoryUnit = config.memoryUnit;
     }
 
     add(osProcess) {
         this.processRegistry[osProcess.pid] = osProcess;
+        this.protocol.statistic('pidusage.push', [osProcess.pid, 0, 0]);
 
-        this.cliView && this.cliView.push([osProcess.pid, 0, 0]);
-
-        osProcess.on('close', processData => {
-            this.cliView && this.cliView.remove(processData.pid);
+        osProcess.on('exit', processData => {
+            this.protocol.statistic('pidusage.remove', processData.pid);
             pidusage.unmonitor(processData.pid);
             delete this.processRegistry[processData.pid];
         });
@@ -49,7 +44,7 @@ class Monitoring {
                 osProcessUsage.memory = +(osProcessUsage.memory / helpers.getMemoryMeasure(this.memoryUnit)).toFixed(2);
                 osProcessUsage.cpu = +(osProcessUsage.cpu.toFixed(2));
 
-                this.cliView && this.cliView.push([
+                this.protocol.statistic('pidusage.push', [
                     pid,
                     osProcessUsage.cpu,
                     `${osProcessUsage.memory} ${helpers.getShortBiteUnitName(this.memoryUnit)}`

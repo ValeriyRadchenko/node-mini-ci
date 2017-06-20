@@ -1,7 +1,10 @@
 const IPC = require('./ipc/ipc');
 
+let protocol = null;
+
 function getProtocol(osProcess) {
-    return new IPC(osProcess);
+    protocol = protocol || new IPC(osProcess);
+    return protocol;
 }
 
 exports.getProtocol = getProtocol;

@@ -8,7 +8,7 @@ module.exports = function applyMonitoring(target, propertyKey) {
         throw new Error('Wrong parameters');
     }
 
-    monitoring = monitoring || new Monitoring(config.monitoring.showMonitoring);
+    monitoring = monitoring || new Monitoring();
 
     let savedProperty = target[propertyKey];
 

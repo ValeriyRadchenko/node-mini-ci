@@ -7,6 +7,8 @@ class IPC extends EventEmitter {
         super();
         this.osProcess = osProcess;
 
+        // Note: process.on('message') is the process standby reason
+        // and you should call `process.removeAllListeners()` or `process.exit(0)` to allow the process exit.
         osProcess.on('message', message => {
            if (typeof message !== 'object' && !message.type) {
                return false;
@@ -31,19 +33,25 @@ class IPC extends EventEmitter {
             throw new Error('command is required');
         }
 
-        this.osProcess.send && this.osProcess.send(new Command(command));
+        (this.osProcess.send) ?
+            this.osProcess.send(new Command(command)) :
+            this.emit(`command.${command}`, command);
     }
 
     info(payload) {
-        this.osProcess.send && this.osProcess.send(new Info(payload));
+        (this.osProcess.send) ?
+            this.osProcess.send(new Info(payload)) :
+            this.emit('info', payload);
     }
 
-    static(measure, payload) {
+    statistic(measure, payload) {
         if (!measure) {
             throw new Error('measure is required');
         }
 
-        this.osProcess.send && this.osProcess.send(new Statistic(measure, payload));
+        (this.osProcess.send) ?
+            this.osProcess.send(new Statistic(measure, payload)) :
+            this.emit(`statistic.${measure}`, payload);
     }
 
 }

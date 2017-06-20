@@ -6,7 +6,7 @@ const OSProcessFactory = require('./factories/os-process-factory');
 const { getProtocol } = require('./connection/root-protocol');
 
 const { NODE_CI_HOME } = process.env;
-let workingDirecory = (NODE_CI_HOME) ? path.resolve(NODE_CI_HOME, 'workspace') : '.';
+let workingDirectory = (NODE_CI_HOME) ? path.resolve(NODE_CI_HOME, 'workspace') : '.';
 
 let Job = null;
 
@@ -26,8 +26,7 @@ protocol.info({
     message: `${process.argv[2]} is started`
 });
 
-
-const osProcessFactory = new OSProcessFactory(jobParams.name, workingDirecory);
+const osProcessFactory = new OSProcessFactory(jobParams.name, workingDirectory);
 let job = new Job(osProcessFactory, jobParams);
 
 process.on('exit', code => {
@@ -39,5 +38,5 @@ process.on('exit', code => {
 
 protocol.on('command.stop', async () => {
     await job.stop();
-    process.exit(0);
+    process.removeAllListeners();
 });

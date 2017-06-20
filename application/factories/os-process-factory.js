@@ -15,8 +15,8 @@ class OSProcessFactory {
     createProcess(command, subDirectory = this.name) {
         let osProcess = new OSProcess(command, path.resolve(this.workingDirectory, subDirectory));
         this.processRegestry[osProcess.pid] = osProcess;
-        this.protocol.static('process.created', {pid: osProcess.pid, command});
-        osProcess.on('close', processData => {
+        this.protocol.statistic('process.created', {pid: osProcess.pid, command});
+        osProcess.on('exit', processData => {
             delete this.processRegestry[processData.pid];
         });
 

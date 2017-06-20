@@ -36,12 +36,12 @@ class OSProcess extends EventEmitter {
                 this.emit('data', data);
             });
 
-            this.systemProcess.on('close', exitCode => {
-                this.emit('close', {
+            this.systemProcess.on('exit', exitCode => {
+                this.emit('exit', {
                     stdout: this.stdout,
                     pid: this.systemProcess && this.systemProcess.pid,
                     exitCode
-                })
+                });
             });
         });
     }
