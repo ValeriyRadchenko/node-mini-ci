@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha ./tests/*.spec.js",
     "start": "node ci-server.js",
-    "detached": "node deamon.js"
+    "daemon": "node daemon.js"
   },
   "author": "Valerii Radchenko",
   "license": "ISC",
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "charm": "^1.0.2",
+    "commander": "^2.9.0",
     "pidusage": "^1.1.5"
   }
 }
