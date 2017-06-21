@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha ./tests/*.spec.js",
-    "start": "node ci-server.js"
+    "start": "node ci-server.js",
+    "detached": "node deamon.js"
   },
   "author": "Valerii Radchenko",
   "license": "ISC",
