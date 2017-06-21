@@ -3,6 +3,7 @@ const pidusage = require('pidusage');
 const util = require('util');
 const helpers = require('./helpers');
 const { getClientProtocol } = require('../connection/root-protocol');
+const logger = require('../logger/logger');
 
 const stat = util.promisify(pidusage.stat);
 
@@ -27,7 +28,7 @@ class Monitoring {
         if (Object.keys(this.processRegistry).length === 1) {
             this.monitor()
                 .then()
-                .catch(console.error);
+                .catch(logger.error);
         }
     }
 

@@ -5,6 +5,7 @@ module.exports = {
     },
     logger: {
         level: 'info', // info | debug | warning | error
+        logFileName: 'node-mini-ci'
     },
     monitoring: {
         showMonitoring: true,

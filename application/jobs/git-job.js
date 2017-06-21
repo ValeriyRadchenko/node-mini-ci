@@ -1,4 +1,5 @@
 const Job = require('../entities/job');
+const logger = require('../logger/logger');
 
 class GitJob extends Job {
 
@@ -16,14 +17,14 @@ class GitJob extends Job {
             try {
                 await this.pull();
             } catch (error) {
-                console.error(error);
+                logger.error(error);
             }
 
         }
 
         let osProcess = this.osProcessFactory.createProcess('npm i');
 
-        osProcess.on('data', console.log);
+        osProcess.on('data', logger.log);
 
         return osProcess
             .wait();
@@ -31,8 +32,6 @@ class GitJob extends Job {
 
     async condition() {
         const { git } = this.params;
-
-        console.log('checking repository...');
 
         try {
             await this.osProcessFactory
@@ -54,7 +53,7 @@ class GitJob extends Job {
             return false;
 
         } catch (error) {
-            console.log(error);
+            logger.error('Git', error);
             return false;
         }
     }
@@ -66,21 +65,29 @@ class GitJob extends Job {
             return false;
         }
 
-        await this.pull();
+        try {
+            await this.pull();
+        } catch (error) {
+            logger.error('Git', error);
+        }
 
         if (typeof scripts === 'string') {
+            logger.warning('DeprecationWarning: Scripts as string are deprecated and will be removed from beta');
             return this.osProcessFactory
                 .createProcess(scripts)
                 .wait();
         }
 
         for (let script of scripts) {
+            logger.info('Action', script, 'is started');
             try {
                 await this.osProcessFactory
                     .createProcess(script)
                     .wait();
+
+                logger.info('Action', script, 'is finished');
             } catch (error) {
-                console.log('Script error:', error);
+                logger.error('Script', error);
             }
         }
 

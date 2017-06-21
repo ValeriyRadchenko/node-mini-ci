@@ -31,37 +31,37 @@ class Logger {
         }
 
         let isoTime = new Date().toISOString();
-        let logItem = `[${isoTime}](${type}) -- ${message.toString()}\n`;
+        let logItem = `[${isoTime}](${type}) -- ${message.join(' ')}\n`;
 
         for (let stream of this.streams) {
             stream.write(logItem);
         }
     }
 
-    info(message) {
+    info(...message) {
         this._apply(INFO, message);
     }
 
-    debug(message) {
+    debug(...message) {
         this._apply(DEBUG, message);
     }
 
-    warning(message) {
+    warning(...message) {
         this._apply(WARNING, message);
     }
 
-    error(message) {
+    error(...message) {
         this._apply(ERROR, message);
     }
 
-    log(message) {
-        this._apply(LOG, message);
+    log(...message) {
+       console.log.apply({}, message);
     }
 
 }
 
 const logger = new Logger([
-    fs.createWriteStream(path.resolve(LOG_PATH, 'node-mini-ci.log'), {encoding: 'utf-8', flags: 'a'}),
+    fs.createWriteStream(path.resolve(LOG_PATH, `${config.logFileName}.log`), {encoding: 'utf-8', flags: 'a'}),
     process.stdout
 ]);
 

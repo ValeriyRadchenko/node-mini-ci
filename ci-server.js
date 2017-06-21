@@ -2,7 +2,10 @@ const path = require('path');
 const fs = require('fs');
 const { fork } = require('child_process');
 const DirectoryWatcher = require('./application/directory-watcher');
-const { getProtocol } = require('./application/connection/root-protocol');
+const { getServerProtocol } = require('./application/connection/root-protocol');
+const logger = require('./application/logger/logger');
+
+const protocol = getServerProtocol();
 
 let jobsBaseDir = path.resolve(__dirname, 'jobs');
 
@@ -39,22 +42,21 @@ directoryWatcher.on('new', fileName => {
         // {stdio: 'ignore'}
     );
 
-    jobs[fileName] = { job: child, protocol: getProtocol(child) };
+    jobs[fileName] = child ;
 
     child.on('exit', () => {
        delete jobs[fileName];
     });
 
-    console.log('new job', child.pid, fileName);
+    logger.info(`new job, ${child.pid}, ${fileName}`);
 });
 
 directoryWatcher.on('remove', fileName => {
-    jobs[fileName].protocol.command('stop');
-    console.log(fileName, 'is removed', jobs[fileName].job.pid);
+    logger.info(fileName, 'is removed', jobs[fileName].pid);
     delete jobs[fileName];
 });
 
 directoryWatcher.watch()
-    .catch(error => console.error);
+    .catch(error => logger.error);
 
-console.log('ci server is started,', `process id is ${process.pid}`);
+logger.info('ci server is started,', `process id is ${process.pid}`);

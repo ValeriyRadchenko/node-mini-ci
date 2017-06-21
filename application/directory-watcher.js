@@ -3,6 +3,7 @@ const path = require('path');
 const util = require('util');
 const EventEmitter = require('events');
 const config = require('../config').watcher;
+const logger = require('./logger/logger');
 
 const readdir = util.promisify(fs.readdir);
 const stat = util.promisify(fs.stat);
@@ -34,7 +35,7 @@ class DirectoryWatcher extends EventEmitter {
 
             // this.filesSnapshot = await readdir(this.dirPath);
         } catch (error) {
-            console.log(error);
+            logger.error(error);
         }
 
         this.intervalId = setInterval(async () => {
@@ -42,7 +43,7 @@ class DirectoryWatcher extends EventEmitter {
 
             for (let file of files) {
                 if (this.filesSnapshot.indexOf(file) < 0 && this.pattern.test(file)) {
-                    console.log('add', file);
+                    logger.info('add', file);
                     this.emit('new', file);
                 }
             }
