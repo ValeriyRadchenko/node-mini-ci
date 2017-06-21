@@ -14,7 +14,8 @@ module.exports = {
     },
     connection: {
         netSocketProtocol: {
-            port: 8147
+            port: 8147,
+            jsonDelimiter: ';'
         }
     }
 };
