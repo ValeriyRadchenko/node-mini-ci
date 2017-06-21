@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 const OSProcessFactory = require('./factories/os-process-factory');
-const { getProtocol } = require('./connection/root-protocol');
+const { getClientProtocol } = require('./connection/root-protocol');
 
 const { NODE_CI_HOME } = process.env;
 let workingDirectory = (NODE_CI_HOME) ? path.resolve(NODE_CI_HOME, 'workspace') : '.';
@@ -19,7 +19,7 @@ try {
     process.exit(1);
 }
 
-const protocol = getProtocol();
+const protocol = getClientProtocol();
 
 protocol.info({
     pid: process.pid,

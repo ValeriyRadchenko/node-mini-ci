@@ -1,10 +1,16 @@
-const IPC = require('./ipc/ipc');
+const NetSocketServer = require('./net-socket/net-socket-server');
+const NetSocketClient = require('./net-socket/net-socket-client');
 
-let protocol = null;
+let server = null;
+let client = null;
 
-function getProtocol(osProcess) {
-    protocol = protocol || new IPC(osProcess);
-    return protocol;
+function getServerProtocol() {
+    return server || (server = new NetSocketServer());
 }
 
-exports.getProtocol = getProtocol;
+function getClientProtocol() {
+    return client || (client = new NetSocketClient());
+}
+
+exports.getServerProtocol = getServerProtocol;
+exports.getClientProtocol = getClientProtocol;

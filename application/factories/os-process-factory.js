@@ -1,13 +1,13 @@
 const OSProcess = require('../entities/os-process');
 const path = require('path');
-const { getProtocol } = require('../connection/root-protocol');
+const { getClientProtocol } = require('../connection/root-protocol');
 
 class OSProcessFactory {
 
     constructor(name, workingDirectory) {
         this.name = name;
         this.workingDirectory = path.resolve(workingDirectory);
-        this.protocol = getProtocol();
+        this.protocol = getClientProtocol();
 
         this.processRegestry = {};
     }

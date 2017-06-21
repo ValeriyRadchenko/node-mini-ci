@@ -2,7 +2,7 @@ const config = require('../../config').monitoring;
 const pidusage = require('pidusage');
 const util = require('util');
 const helpers = require('./helpers');
-const { getProtocol } = require('../connection/root-protocol');
+const { getClientProtocol } = require('../connection/root-protocol');
 
 const stat = util.promisify(pidusage.stat);
 
@@ -10,7 +10,7 @@ class Monitoring {
 
     constructor() {
         this.processRegistry = {};
-        this.protocol = getProtocol();
+        this.protocol = getClientProtocol();
         this.memoryUnit = config.memoryUnit;
     }
 

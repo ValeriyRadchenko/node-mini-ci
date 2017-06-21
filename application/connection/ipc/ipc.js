@@ -1,5 +1,5 @@
 const EventEmitter  = require('events');
-const { Command, Info, Statistic } = require('./index');
+const { Command, Info, Statistic } = require('../common');
 
 class IPC extends EventEmitter {
 
