@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const config = require('../../../config').connection.netSocketProtocol;
-const { Command, Info, Statistic } = require('../common');
+const { Command, Info, Statistic, ProtocolError } = require('../common');
 
 class NetSocketBase extends EventEmitter {
     constructor() {
@@ -35,6 +35,9 @@ class NetSocketBase extends EventEmitter {
                     case  'statistic':
                         this.emit(`statistic.${message.measure}`, message.payload);
                         break;
+                    case  'error':
+                        this.emit(`protocol.error`, message.error);
+                        break;
                 }
             });
     }
@@ -62,6 +65,12 @@ class NetSocketBase extends EventEmitter {
 
         this._send(
             JSON.stringify(new Statistic(measure, payload))
+        );
+    }
+
+    error(error) {
+        this._send(
+            JSON.stringify(new ProtocolError(error))
         );
     }
 }

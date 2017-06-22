@@ -16,7 +16,7 @@ const WEIGHT = {
     log: 99
 };
 
-const LOG_PATH = path.resolve(__dirname, '..', '..');
+const LOG_PATH = (process.env.NODE_CI_HOME) ? path.resolve(process.env.NODE_CI_HOME) : path.resolve(__dirname, '..', '..');
 
 class Logger {
 

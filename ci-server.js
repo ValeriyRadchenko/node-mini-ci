@@ -25,6 +25,8 @@ function startServer(options) {
         jobsBaseDir = path.join(homeDir, 'jobs');
     }
 
+    protocol.on('protocol.error', logger.error);
+
     const directoryWatcher = new DirectoryWatcher(jobsBaseDir);
 
 

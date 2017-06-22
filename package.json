@@ -1,6 +1,6 @@
 {
   "name": "node-mini-ci",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "A simple NodeJS CI server application",
   "main": "index.js",
   "scripts": {
