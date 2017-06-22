@@ -40,5 +40,6 @@ process.on('exit', code => {
 
 protocol.on('command.stop', async () => {
     await job.stop();
+    protocol.destroy();
     process.removeAllListeners();
 });

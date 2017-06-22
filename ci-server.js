@@ -6,6 +6,7 @@ const { getServerProtocol } = require('./application/connection/root-protocol');
 const logger = require('./application/logger/logger');
 
 function startServer(options) {
+
     const protocol = getServerProtocol();
 
     let jobsBaseDir = path.resolve(__dirname, 'jobs');
