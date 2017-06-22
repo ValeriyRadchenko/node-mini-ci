@@ -7,8 +7,7 @@ const OSProcessFactory = require('./factories/os-process-factory');
 const { getClientProtocol } = require('./connection/root-protocol');
 const logger = require('./logger/logger');
 
-const { NODE_CI_HOME } = process.env;
-let workingDirectory = (NODE_CI_HOME) ? path.resolve(NODE_CI_HOME, 'workspace') : '.';
+let workingDirectory = path.resolve(config.homeDir, 'workspace');
 
 let Job = null;
 

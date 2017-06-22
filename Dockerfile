@@ -11,4 +11,4 @@ ENV NODE_CI_HOME /var/node_mini_ci_home
 
 COPY ./ ./
 
-CMD ["npm", "start"]
+CMD ["npm", "start", "--", "-v"]

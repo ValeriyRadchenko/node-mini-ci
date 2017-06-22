@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const homeDir = require('../../config').homeDir;
 const config = require('../../config').logger;
 
 const INFO = 'INFO';
@@ -16,7 +17,7 @@ const WEIGHT = {
     log: 99
 };
 
-const LOG_PATH = (process.env.NODE_CI_HOME) ? path.resolve(process.env.NODE_CI_HOME) : path.resolve(__dirname, '..', '..');
+const LOG_PATH = path.resolve(homeDir);
 
 class Logger {
 

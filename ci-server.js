@@ -4,26 +4,23 @@ const { fork } = require('child_process');
 const DirectoryWatcher = require('./application/directory-watcher');
 const { getServerProtocol } = require('./application/connection/root-protocol');
 const logger = require('./application/logger/logger');
+const config = require('./config');
 
 function startServer(options) {
 
     const protocol = getServerProtocol();
 
-    let jobsBaseDir = path.resolve(__dirname, 'jobs');
+    const homeDir = path.resolve(config.homeDir);
 
-    if (process.env.NODE_CI_HOME) {
-        let homeDir = path.resolve(process.env.NODE_CI_HOME);
-
-        if (!fs.statSync(path.join(homeDir, 'jobs'))) {
-            fs.mkdirSync(path.join(homeDir, 'jobs'));
-        }
-
-        if (!fs.statSync(path.join(homeDir, 'workspace'))) {
-            fs.mkdirSync(path.join(homeDir, 'workspace'));
-        }
-
-        jobsBaseDir = path.join(homeDir, 'jobs');
+    if (!fs.existsSync(path.join(homeDir, 'jobs'))) {
+        fs.mkdirSync(path.join(homeDir, 'jobs'));
     }
+
+    if (!fs.existsSync(path.join(homeDir, 'workspace'))) {
+        fs.mkdirSync(path.join(homeDir, 'workspace'));
+    }
+
+    const jobsBaseDir = path.join(homeDir, 'jobs');
 
     protocol.on('protocol.error', logger.error);
 
