@@ -73,6 +73,7 @@ class GitJob extends Job {
 
         try {
             await this.pull();
+            logger.log(`${git.url} is pulled`);
         } catch (error) {
             logger.error('Git', error);
         }
