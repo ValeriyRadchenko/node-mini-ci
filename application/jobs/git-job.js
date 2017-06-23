@@ -18,12 +18,13 @@ class GitJob extends Job {
             try {
                 await this.pull();
                 logger.log(`${git.url} is pulled`);
-                await this.action();
             } catch (error) {
-                logger.error(error);
+                logger.error('Git', error);
             }
 
         }
+
+        await this.action();
 
         let osProcess = this.osProcessFactory.createProcess('npm i');
 
