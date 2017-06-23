@@ -10,30 +10,32 @@
 
 ## How to use
 
-  ### On Windows:
-  - clone this repository;
-  - run `npm install`;
-  - run `set NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && npm start`;
-  - set up your job, use `job-example.json` as an example;
-  - copy your job to `<YOUR_HOME_DIRECTORY>/jobs`.
+  Install it as a global module:
   
-  ### On Linux:
-  - clone this repository;
-  - run `npm install`;
-  - run `NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && npm start`;
-  - set up your job, use `job-example.json` as a template;
-  - copy your job to `<YOUR_HOME_DIRECTORY>/jobs`.
+  `npm install -g node-mini-ci`
 
-  ### Using with Docker:
+  
+  And run this command in your terminal
+   
+   On Windows:
+    
+    `set NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && node-mini-ci -- --verbose`
+ 
+   On Ubuntu:
+  
+    `export NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && node-mini-ci -- --verbose`
+
+
+*Now you can add or remove job files and all changes will be applied automatically.*
+
+### Using with Docker:
   - create a folder(`<YOUR_HOME_DIRECTORY>`) on your server;
   - run `docker run -ti -v <YOUR_HOME_DIRECTORY>:/var/node_mini_ci_home vradchenko/node_mini_ci`;
   - set up your job, use `job-example.json` as an template;
   - copy your job to `<YOUR_HOME_DIRECTORY>/jobs`.
 
-*Now you can add or remove job files, all changes will be applied automatically.*
-
 ## Run as daemon
-run `NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && npm run daemon`;
+run `NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && node-mini-ci`;
 
 ## Delete a job
  - remove a `<your job name>.json` file from `<YOUR_HOME_DIRECTORY>/jobs` folder and the job will be automatically stopped and removed.

@@ -1,13 +1,13 @@
 {
   "name": "node-mini-ci",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "description": "A simple NodeJS CI server application",
   "main": "index.js",
   "engines": {
     "node": ">=8.0"
   },
   "bin": {
-    "node-mini-ci": "./index.js"
+    "node-mini-ci": "./bin/node-mini-ci.js"
   },
   "scripts": {
     "test": "mocha ./tests/*.spec.js",
