@@ -11,4 +11,6 @@ ENV NODE_CI_HOME /var/node_mini_ci_home
 
 COPY ./ ./
 
+RUN  npm install
+
 CMD ["npm", "start", "--", "-v"]
