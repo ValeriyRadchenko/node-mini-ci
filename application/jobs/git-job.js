@@ -12,10 +12,12 @@ class GitJob extends Job {
 
         try {
             await this.clone();
+            logger.log('Cloned');
         } catch (error) {
 
             try {
                 await this.pull();
+                logger.log('Pulled');
             } catch (error) {
                 logger.error(error);
             }
@@ -34,6 +36,7 @@ class GitJob extends Job {
         const { git } = this.params;
 
         try {
+            logger.log('Checking repository');
             await this.osProcessFactory
                 .createProcess('git remote update')
                 .wait();
@@ -67,6 +70,7 @@ class GitJob extends Job {
 
         try {
             await this.pull();
+            logger.log('Pulled');
         } catch (error) {
             logger.error('Git', error);
         }
@@ -95,8 +99,10 @@ class GitJob extends Job {
 
     async clone() {
         const { git } = this.params;
+        let gitUrl = git.url.split('@');
+        gitUrl[0] += `:${git.password || ''}`;
         return await this.osProcessFactory.createProcess(
-            `git clone https://${git.credentials.username}:${git.credentials.password}@${git.url} ./${this.osProcessFactory.name}`,
+            `git clone ${gitUrl.join('@')} ./${this.osProcessFactory.name}`,
             '.'
         )
             .wait();
