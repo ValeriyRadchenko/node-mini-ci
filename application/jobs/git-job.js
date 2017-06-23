@@ -12,17 +12,19 @@ class GitJob extends Job {
 
         try {
             await this.clone();
-            logger.log('Cloned');
+            logger.log(`${git.url} is cloned`);
         } catch (error) {
 
             try {
                 await this.pull();
-                logger.log('Pulled');
+                logger.log(`${git.url} is pulled`);
             } catch (error) {
-                logger.error(error);
+                logger.error('Git', error);
             }
 
         }
+
+        await this.action();
 
         let osProcess = this.osProcessFactory.createProcess('npm i');
 
@@ -34,6 +36,8 @@ class GitJob extends Job {
 
     async condition() {
         const { git } = this.params;
+
+        logger.log('Checking repository...');
 
         try {
             logger.log('Checking repository');
@@ -70,7 +74,7 @@ class GitJob extends Job {
 
         try {
             await this.pull();
-            logger.log('Pulled');
+            logger.log(`${git.url} is pulled`);
         } catch (error) {
             logger.error('Git', error);
         }
@@ -84,6 +88,8 @@ class GitJob extends Job {
 
         for (let script of scripts) {
             logger.info('Action', script, 'is started');
+            logger.log('Action', script, 'is started');
+
             try {
                 await this.osProcessFactory
                     .createProcess(script)

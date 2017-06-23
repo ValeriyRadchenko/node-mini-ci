@@ -6,33 +6,59 @@ chai.use(chaiAsPromised);
 chai.should();
 const expect = chai.expect;
 
+const COMMAND = 'ls';
+
 describe('Manage osProcess', () => {
     let osProcess = null;
 
     beforeEach(() => {
-        osProcess = new OSProcess('ls', '.');
+
     });
 
     afterEach(() => {
-        osProcess = null;
+
     });
 
-    it('should be created', () => {
+    it('should be created', done => {
+        let osProcess = new OSProcess(COMMAND, '.');
         osProcess.should.have.property('pid');
         osProcess.should.have.property('terminate');
         osProcess.pid.should.not.equal(0);
+        osProcess.wait()
+            .then(() => {
+                done();
+            });
     });
 
     it('should be terminated', done => {
-        osProcess.on('close', processData => {
+        osProcess = new OSProcess(COMMAND, '.');
+
+        osProcess.on('exit', processData => {
             expect(processData.pid).to.equal(null);
 
             done();
         });
 
-        osProcess.wait()
-            .catch(() => {});
-
         osProcess.terminate();
+
+        osProcess.wait()
+            .then(() => {});
+
+
+    });
+
+    it('should transfer stdout data', done => {
+        osProcess = new OSProcess(COMMAND, '.');
+        let stdout = '';
+
+        osProcess.on('data', data => {
+            stdout += data;
+        });
+
+        osProcess.wait()
+            .then(() => {
+                stdout.should.not.be.equal('');
+                done();
+            });
     });
 });

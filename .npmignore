@@ -1,4 +1,4 @@
 .idea
-node_modules
 test-job.json
 *.log
+deploy.js
