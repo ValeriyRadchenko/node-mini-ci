@@ -24,7 +24,7 @@ describe('Manage osProcess', () => {
     });
 
     it('should be terminated', done => {
-        osProcess.on('close', processData => {
+        osProcess.on('exit', processData => {
             expect(processData.pid).to.equal(null);
 
             done();

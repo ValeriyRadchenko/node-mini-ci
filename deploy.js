@@ -37,8 +37,11 @@ function patch() {
 (async function() {
 
     try {
-        let version = patch().version + '-alpha';
         await createProcess('npm i');
+        await createProcess('npm test');
+
+        let version = patch().version + '-alpha';
+
         await createProcess(`docker build -t vradchenko/node_mini_ci:${version} .`);
         await createProcess(`docker build -t vradchenko/node_mini_ci:latest .`);
         await createProcess(`docker push vradchenko/node_mini_ci:${version}`);
