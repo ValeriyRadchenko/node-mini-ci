@@ -81,11 +81,4 @@ if (!module.parent) {
     startServer({verbose: true});
 }
 
-process.on('exit', () => {
-    try {
-        fs.unlinkSync(path.resolve(__dirname, 'session.dat'));
-    } catch (error) {
-    }
-});
-
 exports.startServer = startServer;

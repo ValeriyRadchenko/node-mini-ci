@@ -9,10 +9,18 @@ const entryPointScript = path.resolve(projectRoot, 'ci-server.js');
 
 const optionDefinitions = [
     { name: 'verbose', alias: 'v', type: Boolean },
-    { name: 'daemon', alias: 'd', type: Boolean }
+    { name: 'daemon', alias: 'd', type: Boolean },
+    { name: 'add', alias: 'a', type: Boolean }
 ];
 
 const options = commandLineArgs(optionDefinitions);
+
+if (options.add) {
+
+
+
+    return true;
+}
 
 if (options.daemon) {
 
