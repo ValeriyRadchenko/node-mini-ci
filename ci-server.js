@@ -9,6 +9,7 @@ const config = require('./config');
 function startServer(options) {
 
     const protocol = getServerProtocol();
+    let procesesUsage = {};
 
     const homeDir = path.resolve(config.homeDir);
 
@@ -23,6 +24,19 @@ function startServer(options) {
     const jobsBaseDir = path.join(homeDir, 'jobs');
 
     protocol.on('protocol.error', logger.error);
+
+    protocol.on('statistic.pidusage.push', usage => {
+        procesesUsage[usage[0]] = usage;
+    });
+
+    protocol.on('statistic.pidusage.remove', pid => {
+        delete procesesUsage[pid];
+    });
+
+    protocol.on('command.getUsage', () => {
+        console.log('command.getUsage');
+        protocol.statistic('allUsage', procesesUsage);
+    });
 
     const directoryWatcher = new DirectoryWatcher(jobsBaseDir);
 
@@ -66,5 +80,12 @@ function startServer(options) {
 if (!module.parent) {
     startServer({verbose: true});
 }
+
+process.on('exit', () => {
+    try {
+        fs.unlinkSync(path.resolve(__dirname, 'session.dat'));
+    } catch (error) {
+    }
+});
 
 exports.startServer = startServer;

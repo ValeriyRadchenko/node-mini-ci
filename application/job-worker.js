@@ -6,6 +6,7 @@ const config = require('../config');
 const OSProcessFactory = require('./factories/os-process-factory');
 const { getClientProtocol } = require('./connection/root-protocol');
 const logger = require('./logger/logger');
+const applyMonitoring = require('./monitoring/monitoring-decorator');
 
 let workingDirectory = path.resolve(config.homeDir, 'workspace');
 
@@ -27,7 +28,7 @@ protocol.info({
     message: `${process.argv[2]} is started`
 });
 
-const osProcessFactory = new OSProcessFactory(jobParams.name, workingDirectory);
+const osProcessFactory = applyMonitoring(new OSProcessFactory(jobParams.name, workingDirectory), 'createProcess');
 let job = new Job(osProcessFactory, jobParams);
 
 process.on('exit', code => {
