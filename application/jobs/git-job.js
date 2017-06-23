@@ -40,7 +40,6 @@ class GitJob extends Job {
         logger.log('Checking repository...');
 
         try {
-            logger.log('Checking repository');
             await this.osProcessFactory
                 .createProcess('git remote update')
                 .wait();
