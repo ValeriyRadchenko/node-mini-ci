@@ -3,6 +3,12 @@
   "version": "0.1.2",
   "description": "A simple NodeJS CI server application",
   "main": "index.js",
+  "engines": {
+    "node": ">=8.0"
+  },
+  "bin": {
+    "node-mini-ci": "./index.js"
+  },
   "scripts": {
     "test": "mocha ./tests/*.spec.js",
     "start": "node index.js",
@@ -20,5 +26,29 @@
     "command-line-args": "^4.0.6",
     "commander": "^2.9.0",
     "pidusage": "^1.1.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ValeriyRadchenko/node-mini-ci.git"
+  },
+  "homepage": "https://github.com/ValeriyRadchenko/node-mini-ci",
+  "keywords": [
+    "cli",
+    "ci",
+    "clustering",
+    "cluster cli",
+    "cluster",
+    "cron",
+    "deploy",
+    "deployment",
+    "daemon",
+    "nodemon",
+    "ghost",
+    "ghost production",
+    "sysadmin",
+    "devops",
+    "dev ops",
+    "microservice",
+    "tools"
+  ]
 }
