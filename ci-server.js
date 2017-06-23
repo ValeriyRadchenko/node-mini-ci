@@ -6,6 +6,8 @@ const { getServerProtocol } = require('./application/connection/root-protocol');
 const logger = require('./application/logger/logger');
 const config = require('./config');
 
+const SESSION_FILE_PATH = path.resolve(__dirname, 'session.dat');
+
 function startServer(options) {
 
     const protocol = getServerProtocol();

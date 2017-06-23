@@ -8,7 +8,8 @@ const logger = require('./application/logger/logger');
 const optionDefinitions = [
     { name: 'verbose', alias: 'v', type: Boolean },
     { name: 'daemon', alias: 'd', type: Boolean },
-    { name: 'add', alias: 'a', type: Boolean }
+    { name: 'add', alias: 'a', type: Boolean },
+    { name: 'remove', alias: 'r', type: Boolean }
 ];
 
 const options = commandLineArgs(optionDefinitions);
@@ -22,17 +23,37 @@ if (options.add) {
         })
         .then(job => {
             if (!job) {
-                console.log('false', job);
                 return false;
             }
 
             try {
                 let session = JSON.parse(fs.readFileSync(SESSION_FILE_PATH));
-                console.log(path.resolve(session.nodeCIHome, 'jobs'));
                 fs.writeFileSync(path.resolve(session.nodeCIHome, 'jobs', `${job.name}.json`), JSON.stringify(job));
             } catch (error) {
                 logger.error(error);
             }
+        })
+        .catch(error => logger.error);
+
+    return true;
+}
+
+if (options.remove) {
+    cliUI.remove()
+        .then(answer => {
+            return cliUI.confirm('Are you sure that you want to remove?', answer.jobs);
+        })
+        .then(jobs => {
+            if (!jobs) {
+                return false;
+            }
+
+            let session = JSON.parse(fs.readFileSync(SESSION_FILE_PATH));
+
+            for (let jobName of jobs) {
+                fs.unlinkSync(path.resolve(session.nodeCIHome, 'jobs', jobName));
+            }
+
         })
         .catch(error => logger.error);
 
