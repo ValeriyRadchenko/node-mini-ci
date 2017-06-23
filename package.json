@@ -1,6 +1,6 @@
 {
   "name": "node-mini-ci",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "A simple NodeJS CI server application",
   "main": "index.js",
   "engines": {
@@ -12,7 +12,8 @@
   "scripts": {
     "test": "mocha ./tests/*.spec.js",
     "start": "node index.js",
-    "daemon": "node index.js --daemon"
+    "daemon": "node index.js --daemon",
+    "deploy": "node deploy.js"
   },
   "author": "Valerii Radchenko",
   "license": "ISC",

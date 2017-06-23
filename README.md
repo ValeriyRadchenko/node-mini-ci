@@ -35,7 +35,7 @@
   - copy your job to `<YOUR_HOME_DIRECTORY>/jobs`.
 
 ## Run as daemon
-run `NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && node-mini-ci`;
+run `NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && node-mini-ci -- --daemon`;
 
 ## Delete a job
  - remove a `<your job name>.json` file from `<YOUR_HOME_DIRECTORY>/jobs` folder and the job will be automatically stopped and removed.

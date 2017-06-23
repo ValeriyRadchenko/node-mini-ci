@@ -1,3 +1,4 @@
 .idea
 test-job.json
 *.log
+deploy.js
