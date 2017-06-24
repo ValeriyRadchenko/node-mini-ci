@@ -108,11 +108,11 @@ class GitJob extends Job {
         let gitUrl = git.url;
 
         if (/\@/.test(git.url)) {
-            let gitUrl = gitUrl.split('@');
+            gitUrl = gitUrl.split('@');
             gitUrl[0] += `:${git.password || ''}`;
             gitUrl = gitUrl.join('@');
         }
-
+console.log('gitUrl',gitUrl);
         return await this.osProcessFactory.createProcess(
             `git clone ${gitUrl} ./${this.osProcessFactory.name}`,
             '.'

@@ -102,7 +102,7 @@ function createJob(answers) {
     };
 
     if (answers.git_password) {
-        job.git.git_password = answers.git_password
+        job.git.password = answers.git_password
     }
 
     return job;
