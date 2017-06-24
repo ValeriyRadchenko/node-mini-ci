@@ -1,6 +1,7 @@
 const { spawn } = require('child_process');
 const { saveSession } = require('./session/session');
 const path = require('path');
+const logger = require('./logger/logger');
 
 module.exports = function bootstrap() {
 
@@ -11,5 +12,5 @@ module.exports = function bootstrap() {
         pid: child.pid
     });
 
-    console.log(`Daemon process id is ${child.pid}`);
+    logger.info(`Daemon process id is ${child.pid}`);
 };

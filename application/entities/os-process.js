@@ -1,5 +1,5 @@
 const EventEmitter = require('events');
-const exec = require('child_process').exec;
+const { exec } = require('child_process');
 const os = require('os');
 
 class OSProcess extends EventEmitter {

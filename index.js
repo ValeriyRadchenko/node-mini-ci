@@ -7,7 +7,8 @@ const optionDefinitions = [
     { name: 'verbose', alias: 'v', type: Boolean },
     { name: 'debug', alias: 'd', type: Boolean },
     { name: 'add', alias: 'a', type: Boolean },
-    { name: 'remove', alias: 'r', type: Boolean }
+    { name: 'remove', alias: 'r', type: Boolean },
+    { name: 'stop', alias: 's', type: Boolean }
 ];
 
 const options = commandLineArgs(optionDefinitions);
