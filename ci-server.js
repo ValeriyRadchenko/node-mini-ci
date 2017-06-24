@@ -5,15 +5,12 @@ const DirectoryWatcher = require('./application/directory-watcher');
 const { getServerProtocol } = require('./application/connection/root-protocol');
 const logger = require('./application/logger/logger');
 const config = require('./config');
-const util = require('util');
-const { getSession } = require('./application/session/session');
-
-const readFile = util.promisify(fs.readFile);
 
 function startServer(options) {
 
     const protocol = getServerProtocol();
     let procesesUsage = {};
+    let jobs = {};
 
     const homeDir = path.resolve(config.homeDir);
 
@@ -43,9 +40,6 @@ function startServer(options) {
     });
 
     const directoryWatcher = new DirectoryWatcher(jobsBaseDir);
-
-
-    let jobs = {};
 
     directoryWatcher.on('new', fileName => {
 
