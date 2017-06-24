@@ -18,5 +18,8 @@ module.exports = {
             port: 8147,
             jsonDelimiter: ';'
         }
+    },
+    session: {
+        fileName: 'session.dat'
     }
 };

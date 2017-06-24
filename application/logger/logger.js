@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const homeDir = require('../../config').homeDir;
+const { homeDir } = require('../../config');
 const config = require('../../config').logger;
 
 const INFO = 'INFO';
@@ -59,6 +59,10 @@ class Logger {
        console.log.apply({}, message);
     }
 
+}
+
+if (!fs.existsSync(homeDir)) {
+    fs.mkdirSync(homeDir);
 }
 
 const logger = new Logger([

@@ -12,7 +12,7 @@
   "scripts": {
     "test": "mocha ./tests/*.spec.js",
     "start": "node index.js",
-    "daemon": "node index.js --daemon",
+    "debug": "node index.js --debug -v",
     "deploy": "node deploy.js"
   },
   "author": "Valerii Radchenko",

@@ -2,13 +2,11 @@ const inquirer = require('inquirer');
 const prompt = inquirer.createPromptModule();
 const fs = require('fs');
 const path = require('path');
-
-const SESSION_FILE_PATH = path.resolve(__dirname, '..', '..', 'session.dat');
+const { getSession } = require('../session/session');
 
 module.exports = async function remove() {
 
-    let session = JSON.parse(fs.readFileSync(SESSION_FILE_PATH));
-    let jobs = fs.readdirSync(path.resolve(session.nodeCIHome, 'jobs'))
+    let jobs = fs.readdirSync(path.resolve(getSession().nodeCIHome, 'jobs'))
         .filter(jobName => {
             if (/.json$/.test(jobName)) {
                 return true;
