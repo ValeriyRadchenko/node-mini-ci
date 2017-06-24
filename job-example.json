@@ -2,13 +2,10 @@
   "name": "example-job",
   "type": "git-job",
   "git": {
-    "url": "bitbucket.org/<USERNAME>/<REPOSITORY NAME>.git",
+    "url": "https://bitbucket.org/<USERNAME>/<REPOSITORY NAME>.git",
     "remote": "origin",
     "branch": "master",
-    "credentials": {
-      "username": "<USERNAME>",
-      "password": "<PASSWORD>"
-    }
+    "password": "<PASSWORD>"
   },
   "scripts": ["<BASH SCRIPTS>"],
   "schedule": {

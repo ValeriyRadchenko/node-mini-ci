@@ -1,7 +1,5 @@
 # Node Mini CI Server
 
-### *NOW IN ALPHA*
-
 ## Prerequisites
 * Git installed
 * NodeJS 8+ installed
@@ -16,31 +14,37 @@
 
   
   And run this command in your terminal
-   
-   On Windows:
-    
-    `set NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && node-mini-ci --verbose`
- 
-   On Ubuntu:
-  
-    `export NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && node-mini-ci --verbose`
 
+    `node-mini-ci`
 
-*Now you can add or remove job files and all changes will be applied automatically.*
+### Add a job
+
+    `node-mini-ci --add [-a]`
+
+### Remove a job
+
+    `node-mini-ci --remove [-r]`
+
+### Stop node-mini-ci demonized process
+
+    `node-mini-ci --stop [-s]`
+
+### Run node-mini-ci in debug mode
+
+    `node-mini-ci --debug [-d] --verbose [-v]`
 
 ### Using with Docker:
-  - create a folder(`<YOUR_HOME_DIRECTORY>`) on your server;
-  - run `docker run -ti -v <YOUR_HOME_DIRECTORY>:/var/node_mini_ci_home vradchenko/node_mini_ci`;
+  - create a folder(`<YOUR_DIRECTORY>`) on your server;
+  - run `docker run -ti -v <YOUR_DIRECTORY>:/var/node_mini_ci_home vradchenko/node_mini_ci`;
   - set up your job, use `job-example.json` as an template;
-  - copy your job to `<YOUR_HOME_DIRECTORY>/jobs`.
+  - copy your job to `<YOUR_DIRECTORY>/jobs`.
 
-## Run as daemon
-run `NODE_CI_HOME=<YOUR_HOME_DIRECTORY> && node-mini-ci --daemon`;
 
-## Delete a job
- - remove a `<your job name>.json` file from `<YOUR_HOME_DIRECTORY>/jobs` folder and the job will be automatically stopped and removed.
- 
-## Logs
-You can find log file in a `<YOUR_HOME_DIRECTORY>` folder.
+### Default node-mini-ci home directory
 
-[Link to Docker Hub](https://hub.docker.com/r/vradchenko/node_mini_ci/)
+Default node-mini-ci home directory is `<YOUR_OS_HOME_DIRECTORY>/node-ci`
+
+### Logs
+You can find log file in a `<YOUR_OS_HOME_DIRECTORY>/node-ci` folder.
+
+[Docker Hub](https://hub.docker.com/r/vradchenko/node_mini_ci/)
