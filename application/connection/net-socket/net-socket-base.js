@@ -27,7 +27,7 @@ class NetSocketBase extends EventEmitter {
 
                 switch (message.type) {
                     case 'command':
-                        this.emit(`command.${message.command}`, message);
+                        this.emit(`command.${message.command}`, message.payload);
                         break;
                     case 'info':
                         this.emit('info', message.payload);
@@ -42,13 +42,13 @@ class NetSocketBase extends EventEmitter {
             });
     }
 
-    command(command) {
+    command(command, payload) {
         if (!command) {
             throw new Error('command is required');
         }
 
         this._send(
-            JSON.stringify(new Command(command))
+            JSON.stringify(new Command(command, payload))
         );
     }
 

@@ -5,8 +5,10 @@ const DirectoryWatcher = require('./application/directory-watcher');
 const { getServerProtocol } = require('./application/connection/root-protocol');
 const logger = require('./application/logger/logger');
 const config = require('./config');
+const util = require('util');
+const { getSession } = require('./application/session/session');
 
-const SESSION_FILE_PATH = path.resolve(__dirname, 'session.dat');
+const readFile = util.promisify(fs.readFile);
 
 function startServer(options) {
 
@@ -69,6 +71,7 @@ function startServer(options) {
     });
 
     directoryWatcher.on('remove', fileName => {
+        protocol.command('stop', jobs[fileName].pid);
         logger.info(fileName, 'is removed', jobs[fileName].pid);
         delete jobs[fileName];
     });

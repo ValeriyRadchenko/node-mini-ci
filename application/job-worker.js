@@ -38,7 +38,11 @@ process.on('exit', code => {
     });
 });
 
-protocol.on('command.stop', async () => {
+protocol.on('command.stop', async pid => {
+    if (pid !== process.pid) {
+        return false;
+    }
+
     await job.stop();
     protocol.destroy();
     process.removeAllListeners();
