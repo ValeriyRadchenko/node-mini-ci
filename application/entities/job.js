@@ -1,17 +1,21 @@
-class Job {
+const EventEmitter = require('events');
+
+class Job extends EventEmitter {
 
     constructor(osProcessFactory, params) {
+        super();
         this.osProcessFactory = osProcessFactory;
         this.timerId = null;
         this.stopped = false;
         this.params = params;
+        this.restarted = 0;
 
         this.init()
             .then(() => {
                 return this.tick();
             })
             .catch(error => {
-               throw error;
+                this.emit('error', error);
             });
 
     }
@@ -27,8 +31,20 @@ class Job {
 
     async tick() {
 
-        if (await this.condition()) {
-            await this.action();
+        let isUpdated = false;
+
+        try {
+            isUpdated = await this.condition();
+        } catch (error) {
+            this.emit('error', error);
+        }
+
+        if (isUpdated) {
+            try {
+                await this.action();
+            } catch (error) {
+                this.emit('error', error);
+            }
         }
 
         if (this.stopped) {
@@ -44,6 +60,23 @@ class Job {
         this.stopped = true;
         clearTimeout(this.timerId);
         return this.osProcessFactory.terminate();
+    }
+
+    restart() {
+        if (!this.stopped) {
+            return false;
+        }
+
+        this.restarted++;
+        this.stopped = false;
+
+        this.init()
+            .then(() => {
+                return this.tick();
+            })
+            .catch(error => {
+                this.emit('error', error);
+            });
     }
 
 }

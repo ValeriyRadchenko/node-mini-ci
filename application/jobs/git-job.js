@@ -14,90 +14,58 @@ class GitJob extends Job {
             await this.clone();
             logger.log(`${git.url} is cloned`);
         } catch (error) {
-
-            try {
-                await this.pull();
-                logger.log(`${git.url} is pulled`);
-            } catch (error) {
-                logger.error('Git', error);
-            }
-
+            await this.pull();
+            logger.log(`${git.url} is pulled`);
         }
 
-        await this.action();
-
-        let osProcess = this.osProcessFactory.createProcess('npm i');
-
-        osProcess.on('data', logger.log);
-
-        return osProcess
-            .wait();
+        return this.action();
     }
 
     async condition() {
-        const { git } = this.params;
+        const {git} = this.params;
 
         logger.log('Checking repository...');
 
-        try {
-            await this.osProcessFactory
-                .createProcess('git remote update')
-                .wait();
+        await this.osProcessFactory
+            .createProcess('git remote update')
+            .wait();
 
-            let remoteResult = await this.osProcessFactory
-                .createProcess(`git rev-parse ${git.remote}/${git.branch}`)
-                .wait();
+        let remoteResult = await this.osProcessFactory
+            .createProcess(`git rev-parse ${git.remote}/${git.branch}`)
+            .wait();
 
-            let localResult = await this.osProcessFactory
-                .createProcess('git rev-parse @')
-                .wait();
+        let localResult = await this.osProcessFactory
+            .createProcess('git rev-parse @')
+            .wait();
 
-            if (remoteResult.stdout !== localResult.stdout) {
-                return true;
-            }
-
-            return false;
-
-        } catch (error) {
-            logger.error('Git', error);
-            return false;
+        if (remoteResult.stdout !== localResult.stdout) {
+            return true;
         }
+
+        return false;
+
     }
 
     async action() {
-        const { scripts } = this.params;
+        const {scripts} = this.params;
 
-        if (!scripts || scripts.length < 1) {
+        if (!scripts || scripts.length < 1 || !scripts.map) {
             return false;
         }
 
-        try {
-            await this.pull();
-            logger.log(`${git.url} is pulled`);
-        } catch (error) {
-            logger.error('Git', error);
-        }
+        await this.pull();
+        logger.log(`${git.url} is pulled`);
 
-        if (typeof scripts === 'string') {
-            logger.warning('DeprecationWarning: Scripts as string are deprecated and will be removed from beta');
-            return this.osProcessFactory
-                .createProcess(scripts)
-                .wait();
-        }
 
         for (let script of scripts) {
             logger.info('Action', script, 'is started');
             logger.log('Action', script, 'is started');
 
-            try {
-                await this.osProcessFactory
-                    .createProcess(script)
-                    .wait();
+            await this.osProcessFactory
+                .createProcess(script)
+                .wait();
 
-                logger.info('Action', script, 'is finished');
-            } catch (error) {
-                logger.error('Script', error);
-            }
+            logger.info('Action', script, 'is finished');
         }
 
     }
@@ -112,8 +80,8 @@ class GitJob extends Job {
             gitUrl[0] += `:${git.password || ''}`;
             gitUrl = gitUrl.join('@');
         }
-console.log('gitUrl',gitUrl);
-        return await this.osProcessFactory.createProcess(
+
+        return this.osProcessFactory.createProcess(
             `git clone ${gitUrl} ./${this.osProcessFactory.name}`,
             '.'
         )
@@ -122,7 +90,7 @@ console.log('gitUrl',gitUrl);
 
     async pull() {
         const { git } = this.params;
-        return await this.osProcessFactory.createProcess(
+        return this.osProcessFactory.createProcess(
             `git pull ${git.remote} ${git.branch}`
         )
             .wait();

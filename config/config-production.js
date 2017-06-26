@@ -3,6 +3,9 @@ module.exports = {
         interval: 5000, // milliseconds
         pattern: 'json' // job files ending
     },
+    jobs: {
+        restartTimeout: 10 * 60000 // milliseconds
+    },
     logger: {
         level: 'info', // info | debug | warning | error
         logFileName: 'node-mini-ci'

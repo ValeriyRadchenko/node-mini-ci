@@ -52,7 +52,22 @@ class Logger {
     }
 
     error(...message) {
-        this._apply(ERROR, message);
+        this._apply(ERROR, message.map(item => {
+            if (item.stack) {
+                return (
+                    item.stack + '\n' +
+                    `code: ${item.code}` + '\n' +
+                    `errno: ${item.errno}` + '\n' +
+                    `syscall: ${item.syscall}` + '\n' +
+                    `path: ${item.path}` + '\n' +
+                    `spawnargs: ${item.spawnargs}` + '\n' +
+                    `cmd: ${item.cmd}` + '\n'
+                )
+
+            }
+
+            return item;
+        }));
     }
 
     log(...message) {

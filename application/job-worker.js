@@ -21,21 +21,29 @@ try {
     process.exit(1);
 }
 
-const protocol = getClientProtocol();
-
-protocol.info({
-    pid: process.pid,
-    message: `${process.argv[2]} is started`
-});
-
 const osProcessFactory = applyMonitoring(new OSProcessFactory(jobParams.name, workingDirectory), 'createProcess');
 let job = new Job(osProcessFactory, jobParams);
 
-process.on('exit', code => {
+job.on('error', error => {
+    logger.error(error);
+    job.stop();
+    setTimeout(() => {
+        job.restart();
+    }, config.jobs.restartTimeout);
+});
+
+const protocol = getClientProtocol();
+
+process.on('close', code => {
     protocol.info({
         pid: process.pid,
         message: `${process.argv[2]} is finished`
     });
+});
+
+protocol.info({
+    pid: process.pid,
+    message: `${process.argv[2]} is started`
 });
 
 protocol.on('command.stop', async pid => {
