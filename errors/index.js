@@ -1,3 +1,3 @@
 const ProcessError = require('./process-error');
 
-exports.ProgressError = ProcessError;
+exports.ProcessError = ProcessError;
