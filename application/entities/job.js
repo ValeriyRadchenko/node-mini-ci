@@ -1,4 +1,5 @@
 const EventEmitter = require('events');
+const { ProcessError } = require('../../errors');
 
 class Job extends EventEmitter {
 
@@ -15,7 +16,7 @@ class Job extends EventEmitter {
                 return this.tick();
             })
             .catch(error => {
-                this.emit('error', error);
+                this.emit('error', new ProcessError(error));
             });
 
     }
@@ -36,14 +37,14 @@ class Job extends EventEmitter {
         try {
             isUpdated = await this.condition();
         } catch (error) {
-            this.emit('error', error);
+            this.emit('error', new ProcessError(error));
         }
 
         if (isUpdated) {
             try {
                 await this.action();
             } catch (error) {
-                this.emit('error', error);
+                this.emit('error', new ProcessError(error));
             }
         }
 
@@ -75,7 +76,7 @@ class Job extends EventEmitter {
                 return this.tick();
             })
             .catch(error => {
-                this.emit('error', error);
+                this.emit('error', new ProcessError(error));
             });
     }
 

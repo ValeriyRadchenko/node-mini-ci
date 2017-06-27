@@ -1,3 +1,7 @@
-const ProcessError = require('./process-error');
+const BaseError = require('./base-error');
 
-exports.ProcessError = ProcessError;
+exports.ProcessError = class ProcessError extends BaseError {
+    constructor(error) {
+        super(error);
+    }
+};
