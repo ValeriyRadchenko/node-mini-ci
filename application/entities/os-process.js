@@ -24,7 +24,11 @@ class OSProcess extends EventEmitter {
                 resolve({stdout, stderr});
             });
 
-            this.pid = this.systemProcess.pid;
+            this.systemProcess.on('error', error => {
+                this.emit('error', error);
+            });
+
+            this.pid = this.systemProcess.pid || 0;
 
             this.systemProcess.stdout.on('data', data => {
                 this.stdout += data;

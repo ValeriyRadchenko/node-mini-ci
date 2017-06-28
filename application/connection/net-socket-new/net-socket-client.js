@@ -1,5 +1,8 @@
 const net = require('net');
 const { Frame } = require('../common');
+const config = require('../../../config').connection.netSocketProtocol;
+
+const PORT = config.port;
 
 class NetSocketClient extends Frame {
 
@@ -8,7 +11,7 @@ class NetSocketClient extends Frame {
 
         this.role = role;
 
-        this.client = net.createConnection({port: 9090}, () => {
+        this.client = net.createConnection({port: PORT}, () => {
             this.client.once('data', data => {
                 this.handshake(data.toString());
             });
@@ -25,12 +28,17 @@ class NetSocketClient extends Frame {
         this.client.end();
     }
 
+    destroy() {
+        this.client.destroy();
+    }
+
     handshake(data) {
         if (data === 'hello') {
             this.client.write(`${this.role}::${process.pid}`);
             this.client.on('data', data => {
                 this.onData(data.toString());
             });
+            this.emit('connected');
         }
     }
 

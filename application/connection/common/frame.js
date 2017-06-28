@@ -9,12 +9,15 @@ class Frame extends EventEmitter {
     encode(command, payload) {
 
         if (typeof payload === 'object') {
-            payload = JSON.stringify(payload);
+            try {
+                payload = JSON.stringify(payload);
+            } catch (error) {
+            }
         }
 
         let decodedPayload = '';
         if (payload) {
-            decodedPayload = Buffer.from(payload).toString('base64');
+            decodedPayload = Buffer.from(payload.toString()).toString('base64');
         }
 
         return `${command}::${decodedPayload};`;

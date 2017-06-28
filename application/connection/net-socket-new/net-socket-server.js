@@ -1,5 +1,8 @@
 const net = require('net');
 const { Frame } = require('../common');
+const config = require('../../../config').connection.netSocketProtocol;
+
+const PORT = config.port;
 
 class NetSocketServer extends Frame {
     constructor() {
@@ -10,10 +13,13 @@ class NetSocketServer extends Frame {
 
         this.clients = {};
 
-        this.server.listen(9090);
+        this.startPromise = new Promise(resolve => {
+            this.server.listen(PORT, resolve);
+        });
+
     }
 
-    send(command, payload) {
+    sendToWorkers(command, payload) {
         let frame = this.encode(command, payload);
 
         for (let key in this.clients) {
@@ -23,6 +29,22 @@ class NetSocketServer extends Frame {
                 socket.write(frame);
             }
         }
+    }
+
+    sendToControllers(command, payload) {
+        let frame = this.encode(command, payload);
+
+        for (let key in this.clients) {
+            let socket = this.clients[key];
+
+            if (socket.$$role === 'controller') {
+                socket.write(frame);
+            }
+        }
+    }
+
+    close() {
+        this.server.close();
     }
 
     handshake(socket) {
@@ -39,7 +61,7 @@ class NetSocketServer extends Frame {
             }
 
             socket.on('data', data => {
-                this.onData(data.toString());
+                this.onData(data.toString(), socket.$$role);
             });
 
             socket.on('error', error => {
@@ -59,17 +81,26 @@ class NetSocketServer extends Frame {
         socket.write('hello');
     }
 
-    onData(frames) {
+    onData(frames, role) {
         for (let frame of frames.split(';')) {
             if (!frame) {
                 continue;
             }
 
             let decodedFrame = this.decode(frame);
-            this.send(decodedFrame.command, decodedFrame.payload);
+
+            if (role === 'controller') {
+                this.sendToWorkers(decodedFrame.command, decodedFrame.payload);
+            } else {
+                this.sendToControllers(decodedFrame.command, decodedFrame.payload);
+            }
+
             this.emit(decodedFrame.command, decodedFrame.payload);
-            console.log('onData', decodedFrame);
         }
+    }
+
+    onStarted() {
+        return this.startPromise;
     }
 
 }

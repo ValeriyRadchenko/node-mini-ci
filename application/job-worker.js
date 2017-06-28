@@ -4,13 +4,15 @@ const fs = require('fs');
 const util = require('util');
 const config = require('../config');
 const OSProcessFactory = require('./factories/os-process-factory');
-const { getClientProtocol } = require('./connection/root-protocol');
+const NetSocketClient = require('./connection/net-socket-new/net-socket-client');
 const logger = require('./logger/logger');
 const applyMonitoring = require('./monitoring/monitoring-decorator');
 
 let workingDirectory = path.resolve(config.homeDir, 'workspace');
 
+
 let Job = null;
+let timer = null;
 
 let jobParams = null;
 try {
@@ -27,27 +29,24 @@ let job = new Job(osProcessFactory, jobParams);
 job.on('error', error => {
     logger.error(error);
     job.stop();
-    setTimeout(() => {
+    timer = setTimeout(() => {
         job.restart();
     }, config.jobs.restartTimeout);
+    timer.unref();
 });
 
-const protocol = getClientProtocol();
+const protocol = new NetSocketClient('worker');
 
 process.on('close', code => {
-    protocol.info({
-        pid: process.pid,
-        message: `${process.argv[2]} is finished`
-    });
+    protocol.send('info', `${process.argv[2]} is finished`);
 });
 
-protocol.info({
-    pid: process.pid,
-    message: `${process.argv[2]} is started`
+protocol.once('connected', () => {
+    protocol.send('info', `${process.argv[2]} is started`);
 });
 
-protocol.on('command.stop', async pid => {
-    if (pid !== process.pid) {
+protocol.on('stop', async pid => {
+    if (+pid !== process.pid) {
         return false;
     }
 

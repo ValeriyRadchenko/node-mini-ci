@@ -2,17 +2,14 @@ const path = require('path');
 const fs = require('fs');
 const { fork } = require('child_process');
 const DirectoryWatcher = require('./application/directory-watcher');
-const { getServerProtocol } = require('./application/connection/root-protocol');
+const NetSocketServer = require('./application/connection/net-socket-new/net-socket-server');
+const NetSocketClient = require('./application/connection/net-socket-new/net-socket-client');
 const logger = require('./application/logger/logger');
 const config = require('./config');
 
-function startServer(options) {
-
-    const protocol = getServerProtocol();
-    let procesesUsage = {};
-    let jobs = {};
-
+function init(options) {
     const homeDir = path.resolve(config.homeDir);
+    let jobs = {};
 
     if (!fs.existsSync(path.join(homeDir, 'jobs'))) {
         fs.mkdirSync(path.join(homeDir, 'jobs'));
@@ -24,20 +21,7 @@ function startServer(options) {
 
     const jobsBaseDir = path.join(homeDir, 'jobs');
 
-    protocol.on('protocol.error', logger.error);
-
-    protocol.on('statistic.pidusage.push', usage => {
-        procesesUsage[usage[0]] = usage;
-    });
-
-    protocol.on('statistic.pidusage.remove', pid => {
-        delete procesesUsage[pid];
-    });
-
-    protocol.on('command.getUsage', () => {
-        console.log('command.getUsage');
-        protocol.statistic('allUsage', procesesUsage);
-    });
+    const controller = new NetSocketClient('controller');
 
     const directoryWatcher = new DirectoryWatcher(jobsBaseDir);
 
@@ -64,8 +48,12 @@ function startServer(options) {
         logger.info(`new job, ${child.pid}, ${fileName}`);
     });
 
+    controller.on('info', info => {
+        logger.info(info);
+    });
+
     directoryWatcher.on('remove', fileName => {
-        protocol.command('stop', jobs[fileName].pid);
+        controller.send('stop', jobs[fileName].pid);
         logger.info(fileName, 'is removed', jobs[fileName].pid);
         delete jobs[fileName];
     });
@@ -74,6 +62,16 @@ function startServer(options) {
         .catch(error => logger.error);
 
     logger.info('ci server is started,', `process id is ${process.pid}`);
+}
+
+function startServer(options) {
+
+    const server = new NetSocketServer();
+
+    server.onStarted()
+        .then(() => {
+            init(options);
+        });
 }
 
 if (!module.parent) {

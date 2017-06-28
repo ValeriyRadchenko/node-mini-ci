@@ -1,13 +1,11 @@
 const OSProcess = require('../entities/os-process');
 const path = require('path');
-const rootProtocol = require('../connection/root-protocol');
 
 class OSProcessFactory {
 
     constructor(name, workingDirectory) {
         this.name = name;
         this.workingDirectory = path.resolve(workingDirectory);
-        this.protocol = rootProtocol.getClientProtocol();
 
         this.processRegestry = {};
     }
@@ -15,7 +13,11 @@ class OSProcessFactory {
     createProcess(command, subDirectory = this.name) {
         let osProcess = new OSProcess(command, path.resolve(this.workingDirectory, subDirectory));
         this.processRegestry[osProcess.pid] = osProcess;
-        this.protocol.statistic('process.created', {pid: osProcess.pid, command});
+
+        osProcess.on('error', error => {
+            delete this.processRegestry[0];
+        });
+
         osProcess.on('exit', processData => {
             delete this.processRegestry[processData.pid];
         });
