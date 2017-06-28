@@ -1,7 +1,7 @@
 const net = require('net');
-const EventEmitter = require('events');
+const { Frame } = require('../common');
 
-class NetSocketServer extends EventEmitter {
+class NetSocketServer extends Frame {
     constructor() {
         super();
         this.server = new net.createServer(socket => {
@@ -14,6 +14,14 @@ class NetSocketServer extends EventEmitter {
         };
 
         this.server.listen(9090);
+    }
+
+    send(command, payload) {
+        let frame = this.encode(command, payload);
+        for (let key in this.clients.workers) {
+            let worker = this.clients.workers[key];
+            worker.write(frame);
+        }
     }
 
     handshake(socket) {
@@ -29,6 +37,9 @@ class NetSocketServer extends EventEmitter {
                     this.onData(data.toString());
                 });
 
+                socket.on('error', error => {
+                    console.log(error);
+                });
 
                 this.clients.workers[pid] = socket;
                 return;
@@ -53,42 +64,18 @@ class NetSocketServer extends EventEmitter {
         socket.write('hello');
     }
 
-    onData(data) {
-        console.log(this.clients);
-        let eventRegExp = new RegExp('^(\w+)::([^\n]+)');
+    onData(frames) {
+        for (let frame of frames.split(';')) {
+            if (!frame) {
+                continue;
+            }
 
-        let packeges = data.split('\n')
-            .forEach(pack => {
-                let result = eventRegExp.exec(pack);
-                if (result && result.length > 2) {
-                    this.emit({event: result[1], payload: result[2]});
-                }
-            });
+            let decodedFrame = this.decode(frame);
+            console.log('onData', decodedFrame);
+        }
     }
 
 }
 
-let protocol = new NetSocketServer();
+module.exports = NetSocketServer;
 
-protocol.once('handshake.init', type => {
-    console.log('type', type);
-});
-
-// function handshake(socket) {
-//     socket.on('data', data => {
-//         if (data === 'worker') {
-//             console.log('worker');
-//             socket.write('your_pid');
-//             return;
-//         }
-//
-//         if (data === 'controller') {
-//             console.log('controller');
-//             return;
-//         }
-//
-//         socket.destroy('Bad handshake');
-//     });
-//
-//     socket.write('hello');
-// }
