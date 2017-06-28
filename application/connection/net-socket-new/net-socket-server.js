@@ -8,19 +8,20 @@ class NetSocketServer extends Frame {
             this.handshake(socket);
         });
 
-        this.clients = {
-            workers: {},
-            controllers: {}
-        };
+        this.clients = {};
 
         this.server.listen(9090);
     }
 
     send(command, payload) {
         let frame = this.encode(command, payload);
-        for (let key in this.clients.workers) {
-            let worker = this.clients.workers[key];
-            worker.write(frame);
+
+        for (let key in this.clients) {
+            let socket = this.clients[key];
+
+            if (socket.$$role === 'worker') {
+                socket.write(frame);
+            }
         }
     }
 
@@ -32,34 +33,28 @@ class NetSocketServer extends Frame {
             let role = data[0];
             let pid = data[1];
 
-            if (role === 'worker') {
-                socket.on('data', data => {
-                    this.onData(data.toString());
-                });
-
-                socket.on('error', error => {
-                    console.log(error);
-                });
-
-                this.clients.workers[pid] = socket;
-                return;
+            if (role !== 'worker' && role !== 'controller') {
+                socket.destroy('');
+                return false;
             }
 
-            if (role === 'controller') {
+            socket.on('data', data => {
+                this.onData(data.toString());
+            });
 
-                socket.on('data', data => {
-                    this.onData(data.toString());
-                });
+            socket.on('error', error => {
+                console.log(error);
+            });
 
-                this.clients.controllers[pid] = socket;
-                return;
-            }
+            socket.on('close', () => {
+                delete this.clients[socket.$$pid];
+            });
 
+            socket.$$role = role;
+            socket.$$pid = pid;
+            this.clients[pid] = socket;
 
-            socket.destroy('');
         });
-
-
 
         socket.write('hello');
     }
@@ -71,6 +66,8 @@ class NetSocketServer extends Frame {
             }
 
             let decodedFrame = this.decode(frame);
+            this.send(decodedFrame.command, decodedFrame.payload);
+            this.emit(decodedFrame.command, decodedFrame.payload);
             console.log('onData', decodedFrame);
         }
     }
