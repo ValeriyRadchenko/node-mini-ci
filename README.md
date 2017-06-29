@@ -10,28 +10,32 @@
 
   Install it as a global module:
   
-  `npm install -g node-mini-ci`
+    npm install -g node-mini-ci
 
   
   And run this command in your terminal
 
-    `node-mini-ci`
+    node-mini-ci
 
 ### Add a job
 
-    `node-mini-ci --add [-a]`
+    node-mini-ci --add [-a]
 
 ### Remove a job
 
-    `node-mini-ci --remove [-r]`
+    node-mini-ci --remove [-r]
 
 ### Stop node-mini-ci demonized process
 
-    `node-mini-ci --stop [-s]`
+    node-mini-ci --stop [-s]
+    
+### Get jobs status
+
+    node-mini-ci --statatus
 
 ### Run node-mini-ci in debug mode
 
-    `node-mini-ci --debug [-d] --verbose [-v]`
+    node-mini-ci --debug [-d] --verbose [-v]
 
 ### Using with Docker:
   - create a folder(`<YOUR_DIRECTORY>`) on your server;

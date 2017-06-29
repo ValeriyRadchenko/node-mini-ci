@@ -69,6 +69,7 @@ class NetSocketServer extends Frame {
             });
 
             socket.on('close', () => {
+                console.log('disconnected');
                 delete this.clients[socket.$$pid];
             });
 
