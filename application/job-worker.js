@@ -7,6 +7,7 @@ const OSProcessFactory = require('./factories/os-process-factory');
 const NetSocketClient = require('./connection/net-socket-new/net-socket-client');
 const logger = require('./logger/logger');
 const Monitoring = require('./monitoring/monitoring');
+const { getRunTime } = require('./helpers');
 
 let workingDirectory = path.resolve(config.homeDir, 'workspace');
 
@@ -26,6 +27,20 @@ try {
 
 const osProcessFactory = monitoring.applyMonitoring(new OSProcessFactory(jobParams.name, workingDirectory), 'createProcess');
 let job = new Job(osProcessFactory, jobParams);
+job.usage = {cpu: [0, 0], memory: [0, 0]};
+
+monitoring.on('usage.push', usage => {
+    job.usage.cpu[0] = (+job.usage.cpu[0] + +usage[1]).toFixed(2);
+    job.usage.cpu[1]++;
+
+    job.usage.memory[0] = (+job.usage.memory[0] + +usage[2]).toFixed(2);
+    job.usage.memory[1]++;
+});
+
+let interval = setInterval(() => {
+    job.usage = {cpu: [0, 0], memory: [0, 0]};
+}, 15 * 60000);
+interval.unref();
 
 job.on('error', error => {
     logger.error(error);
@@ -47,13 +62,20 @@ protocol.once('connected', () => {
 });
 
 protocol.on('getStatus', () => {
+    let usage = {cpu: 0, memory: 0};
+
+    usage.cpu = `${(job.usage.cpu[0] / job.usage.cpu[1]).toFixed(2)} %`;
+    usage.memory = `${(job.usage.memory[0] / job.usage.memory[1]).toFixed(2)} ${monitoring.getMemoryUnit()}`;
+
     protocol.send('status', {
         name: jobParams.name,
         type: jobParams.type,
         pid: process.pid,
         status: job.status,
         restarted: job.restarted,
-        startTime: job.startTime
+        startTime: getRunTime(job.startTime),
+        cpu: usage.cpu,
+        memory: usage.memory
     });
 });
 

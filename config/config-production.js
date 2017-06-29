@@ -12,8 +12,7 @@ module.exports = {
     },
     monitoring: {
         showMonitoring: true,
-        columnWidth: 20, // pixels
-        updateDelay: 300, // milliseconds
+        updateDelay: 1000, // milliseconds
         memoryUnit: 'megabyte' // byte | kilobyte | megabyte | gigabyte | terabyte
     },
     connection: {

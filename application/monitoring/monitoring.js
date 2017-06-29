@@ -1,17 +1,23 @@
+const EventEmitter = require('events');
 const config = require('../../config').monitoring;
 const pidusage = require('pidusage');
 const util = require('util');
-const helpers = require('./helpers');
+const helpers = require('../helpers');
 const logger = require('../logger/logger');
 
 const stat = util.promisify(pidusage.stat);
 
-class Monitoring {
+class Monitoring extends EventEmitter {
 
     constructor() {
+        super();
         this.processRegistry = {};
         this.memoryUnit = config.memoryUnit;
         this.timer = null;
+    }
+
+    getMemoryUnit() {
+        return helpers.getShortBiteUnitName(this.memoryUnit);
     }
 
     add(osProcess) {
@@ -20,10 +26,9 @@ class Monitoring {
         }
 
         this.processRegistry[osProcess.pid] = osProcess;
-        // this.protocol.statistic('pidusage.push', [osProcess.pid, 0, 0]);
 
         osProcess.on('exit', processData => {
-            // this.protocol.statistic('pidusage.remove', processData.pid);
+            this.emit('usage.remove', processData.pid);
             pidusage.unmonitor(processData.pid);
             delete this.processRegistry[processData.pid];
         });
@@ -48,11 +53,11 @@ class Monitoring {
                 osProcessUsage.memory = +(osProcessUsage.memory / helpers.getMemoryMeasure(this.memoryUnit)).toFixed(2);
                 osProcessUsage.cpu = +(osProcessUsage.cpu.toFixed(2));
 
-                // this.protocol.statistic('pidusage.push', [
-                //     pid,
-                //     osProcessUsage.cpu,
-                //     `${osProcessUsage.memory} ${helpers.getShortBiteUnitName(this.memoryUnit)}`
-                // ]);
+                this.emit('usage.push', [
+                    pid,
+                    osProcessUsage.cpu,
+                    osProcessUsage.memory
+                ]);
             } catch (error) {
 
             }

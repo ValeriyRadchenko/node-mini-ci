@@ -34,7 +34,7 @@ module.exports = function checkEntryPoint(options) {
         getJobsStatus()
             .then(jobsStatus => {
                 const table = new Table({
-                    head: ['Name', 'Type', 'pid', 'Status', 'Restart', 'Start time']
+                    head: ['Name', 'Type', 'pid', 'Status', 'Restarts', 'Start time', 'CPU(avr)', 'Memory(avr)']
                         .map(item => item.cyan)
                 });
 
