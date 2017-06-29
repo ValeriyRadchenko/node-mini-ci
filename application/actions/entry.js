@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { getSession } = require('../session/session');
 const config = require('../../config');
 
 const cliUI = require('../cli-ui');
@@ -21,10 +20,9 @@ module.exports = function checkEntryPoint(options) {
 
     if (options.stop) {
         stopApplication()
-            .then(pid => {
-                console.log(pid, path.resolve(getSession().nodeCIHome, config.session.fileName));
-                fs.unlinkSync(path.resolve(getSession().nodeCIHome, config.session.fileName));
-                logger.info(`node-mini-ci daemon process pid ${pid} is stopped.`);
+            .then(() => {
+                fs.unlinkSync(path.resolve(config.homeDir, config.session.fileName));
+                logger.info(`node-mini-ci daemon process is stopped.`);
             })
             .catch(error => logger.error);
 

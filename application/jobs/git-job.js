@@ -47,7 +47,7 @@ class GitJob extends Job {
     }
 
     async action() {
-        const {scripts} = this.params;
+        const { scripts, git } = this.params;
 
         if (!scripts || scripts.length < 1 || !scripts.map) {
             return false;

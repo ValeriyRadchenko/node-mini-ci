@@ -26,7 +26,6 @@ class NetSocketClient extends Frame {
 
     sendPrivileged(command, payload) {
         let frame = this.encode(`!${command}`, payload);
-        console.log(frame);
         this.client.write(frame);
     }
 

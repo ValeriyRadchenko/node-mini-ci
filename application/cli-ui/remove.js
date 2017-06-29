@@ -2,11 +2,11 @@ const inquirer = require('inquirer');
 const prompt = inquirer.createPromptModule();
 const fs = require('fs');
 const path = require('path');
-const { getSession } = require('../session/session');
+const config = require('../../config');
 
 module.exports = async function remove() {
 
-    let jobs = fs.readdirSync(path.resolve(getSession().nodeCIHome, 'jobs'))
+    let jobs = fs.readdirSync(path.resolve(config.homeDir, 'jobs'))
         .filter(jobName => {
             if (/.json$/.test(jobName)) {
                 return true;

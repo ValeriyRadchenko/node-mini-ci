@@ -1,7 +1,7 @@
 const logger = require('../logger/logger');
 const fs = require('fs');
 const path = require('path');
-const { getSession } = require('../session/session');
+const config = require('../../config');
 
 module.exports = function removeJob(jobs) {
     if (!jobs) {
@@ -9,6 +9,6 @@ module.exports = function removeJob(jobs) {
     }
 
     for (let jobName of jobs) {
-        fs.unlinkSync(path.resolve(getSession().nodeCIHome, 'jobs', jobName));
+        fs.unlinkSync(path.resolve(config.homeDir, 'jobs', jobName));
     }
 };

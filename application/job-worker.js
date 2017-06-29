@@ -6,13 +6,14 @@ const config = require('../config');
 const OSProcessFactory = require('./factories/os-process-factory');
 const NetSocketClient = require('./connection/net-socket-new/net-socket-client');
 const logger = require('./logger/logger');
-const applyMonitoring = require('./monitoring/monitoring-decorator');
+const Monitoring = require('./monitoring/monitoring');
 
 let workingDirectory = path.resolve(config.homeDir, 'workspace');
 
 
 let Job = null;
 let timer = null;
+let monitoring = new Monitoring();
 
 let jobParams = null;
 try {
@@ -23,7 +24,7 @@ try {
     process.exit(1);
 }
 
-const osProcessFactory = applyMonitoring(new OSProcessFactory(jobParams.name, workingDirectory), 'createProcess');
+const osProcessFactory = monitoring.applyMonitoring(new OSProcessFactory(jobParams.name, workingDirectory), 'createProcess');
 let job = new Job(osProcessFactory, jobParams);
 
 job.on('error', error => {
@@ -62,6 +63,7 @@ protocol.on('stop', async pid => {
     }
 
     await job.stop();
+    monitoring.destroy();
     protocol.destroy();
     process.removeAllListeners();
 });

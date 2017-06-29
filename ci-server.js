@@ -70,8 +70,10 @@ function init(options) {
             let job = jobs[key];
             controller.send('stop', job.pid);
         }
-        stopServer();
-        process.removeAllListeners();
+        setTimeout(() => {
+            stopServer();
+            process.removeAllListeners();
+        }, 2000);
     });
 
     logger.info('ci server is started,', `process id is ${process.pid}`);
