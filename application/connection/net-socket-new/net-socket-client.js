@@ -24,6 +24,12 @@ class NetSocketClient extends Frame {
         this.client.write(frame);
     }
 
+    sendPrivileged(command, payload) {
+        let frame = this.encode(`!${command}`, payload);
+        console.log(frame);
+        this.client.write(frame);
+    }
+
     end() {
         this.client.end();
     }
@@ -38,6 +44,19 @@ class NetSocketClient extends Frame {
             this.client.on('data', data => {
                 this.onData(data.toString());
             });
+
+            this.client.on('close', () => {
+                this.emit('close');
+            });
+
+            this.client.on('error', error => {
+                this.emit('error', error);
+            });
+
+            this.client.on('timeout', () => {
+                this.emit('timeout');
+            });
+
             this.emit('connected');
         }
     }

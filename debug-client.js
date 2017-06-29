@@ -18,9 +18,19 @@ rl.question('Who you are worker(0) or controller(1) ', (answer) => {
         return;
     }
 
-    client.on('stop', () => {
+    client.on('close', () => {
         rl.close();
-        client.end();
+        console.log('Close by server');
+    });
+
+    client.on('error', error => {
+        rl.close();
+        console.log(error);
+    });
+
+    client.on('timeout', () => {
+        rl.close();
+        console.log('Server timeout');
     });
 
     client.on('$all.events', data => {

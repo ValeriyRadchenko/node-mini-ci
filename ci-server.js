@@ -7,6 +7,8 @@ const NetSocketClient = require('./application/connection/net-socket-new/net-soc
 const logger = require('./application/logger/logger');
 const config = require('./config');
 
+let server = null;
+
 function init(options) {
     const homeDir = path.resolve(config.homeDir);
     let jobs = {};
@@ -48,10 +50,6 @@ function init(options) {
         logger.info(`new job, ${child.pid}, ${fileName}`);
     });
 
-    controller.on('info', info => {
-        logger.info(info);
-    });
-
     directoryWatcher.on('remove', fileName => {
         controller.send('stop', jobs[fileName].pid);
         logger.info(fileName, 'is removed', jobs[fileName].pid);
@@ -61,17 +59,38 @@ function init(options) {
     directoryWatcher.watch()
         .catch(error => logger.error);
 
+    controller.on('info', info => {
+        logger.info(info);
+    });
+
+    controller.on('!stop', () => {
+        console.log('!stop');
+        directoryWatcher.stopWatching();
+        for (let key in jobs) {
+            let job = jobs[key];
+            controller.send('stop', job.pid);
+        }
+        stopServer();
+        process.removeAllListeners();
+    });
+
     logger.info('ci server is started,', `process id is ${process.pid}`);
 }
 
 function startServer(options) {
 
-    const server = new NetSocketServer();
+    server = new NetSocketServer();
 
     server.onStarted()
         .then(() => {
             init(options);
         });
+}
+
+function stopServer() {
+    if (server) {
+        server.close();
+    }
 }
 
 if (!module.parent) {

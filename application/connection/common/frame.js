@@ -24,7 +24,7 @@ class Frame extends EventEmitter {
     }
 
     decode(frame) {
-        let regExp = new RegExp('^(\\w+)::(.*)');
+        let regExp = new RegExp('^(.+)::(.*)');
         frame = regExp.exec(frame);
 
         if (!frame) {

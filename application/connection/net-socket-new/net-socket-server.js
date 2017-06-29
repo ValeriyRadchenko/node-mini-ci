@@ -43,8 +43,25 @@ class NetSocketServer extends Frame {
         }
     }
 
+    sendPrivileged(command, payload) {
+        let frame = this.encode(command, payload);
+
+        for (let key in this.clients) {
+            let socket = this.clients[key];
+            socket.write(frame);
+        }
+    }
+
     close() {
-        this.server.close();
+        return new Promise(resolve => {
+            for (let key in this.clients) {
+                this.clients[key].destroy('');
+            }
+
+            this.server.close(() => {
+                resolve();
+            });
+        });
     }
 
     handshake(socket) {
@@ -95,7 +112,11 @@ class NetSocketServer extends Frame {
             }
 
             if (role === 'controller') {
-                this.sendToWorkers(decodedFrame.command, decodedFrame.payload);
+
+                (/^!.+/.test(decodedFrame.command)) ?
+                    this.sendPrivileged(decodedFrame.command, decodedFrame.payload) :
+                    this.sendToWorkers(decodedFrame.command, decodedFrame.payload);
+
             } else {
                 this.sendToControllers(decodedFrame.command, decodedFrame.payload);
             }

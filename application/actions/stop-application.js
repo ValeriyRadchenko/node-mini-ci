@@ -1,27 +1,13 @@
-const os = require('os');
-const { exec } = require('child_process');
-const { getSession } = require('../session/session');
+const NetSocketClient = require('../connection/net-socket-new/net-socket-client');
 
 module.exports = function stopApplication() {
     return new Promise((resolve, reject) => {
-        let pid = getSession().pid;
+        const client = new NetSocketClient('controller');
+        client.once('connected', () => {
+            client.sendPrivileged('stop');
+        });
 
-        if (os.platform() === 'win32') {
-            exec(`taskkill /pid ${pid} /T /F`, error => {
-                if (error) {
-                    return reject(error);
-                }
-
-                resolve(pid);
-            });
-        } else {
-            exec(`kill -9 ${pid}`, error => {
-                if (error) {
-                    return reject(error);
-                }
-
-                resolve(pid);
-            });
-        }
+        client.on('close', resolve);
+        client.on('error', reject);
     });
 };
