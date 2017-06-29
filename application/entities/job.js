@@ -10,12 +10,15 @@ class Job extends EventEmitter {
         this.stopped = false;
         this.params = params;
         this.restarted = 0;
+        this.status = 'healthy';
+        this.startTime = Date.now();
 
         this.init()
             .then(() => {
                 return this.tick();
             })
             .catch(error => {
+                this.status = 'error';
                 this.emit('error', new ProcessError(error));
             });
 
@@ -37,6 +40,7 @@ class Job extends EventEmitter {
         try {
             isUpdated = await this.condition();
         } catch (error) {
+            this.status = 'error';
             this.emit('error', new ProcessError(error));
         }
 
@@ -44,6 +48,7 @@ class Job extends EventEmitter {
             try {
                 await this.action();
             } catch (error) {
+                this.status = 'error';
                 this.emit('error', new ProcessError(error));
             }
         }
@@ -70,12 +75,14 @@ class Job extends EventEmitter {
 
         this.restarted++;
         this.stopped = false;
+        this.status = 'healthy';
 
         this.init()
             .then(() => {
                 return this.tick();
             })
             .catch(error => {
+                this.status = 'error';
                 this.emit('error', new ProcessError(error));
             });
     }

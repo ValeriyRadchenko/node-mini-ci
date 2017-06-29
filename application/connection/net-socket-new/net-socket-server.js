@@ -89,6 +89,10 @@ class NetSocketServer extends Frame {
 
             let decodedFrame = this.decode(frame);
 
+            if (!decodedFrame) {
+                return;
+            }
+
             if (role === 'controller') {
                 this.sendToWorkers(decodedFrame.command, decodedFrame.payload);
             } else {
@@ -96,6 +100,7 @@ class NetSocketServer extends Frame {
             }
 
             this.emit(decodedFrame.command, decodedFrame.payload);
+            this.emit('$all.events', decodedFrame);
         }
     }
 

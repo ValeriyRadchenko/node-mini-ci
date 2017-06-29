@@ -49,7 +49,13 @@ class NetSocketClient extends Frame {
             }
 
             let decodedFrame = this.decode(frame);
+
+            if (!decodedFrame) {
+                return;
+            }
+
             this.emit(decodedFrame.command, decodedFrame.payload);
+            this.emit('$all.events', decodedFrame);
         }
     }
 

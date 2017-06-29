@@ -41,7 +41,7 @@ function init(options) {
 
         jobs[fileName] = child;
 
-        child.on('exit', () => {
+        child.on('close', () => {
             delete jobs[fileName];
         });
 

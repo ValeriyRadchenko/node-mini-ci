@@ -23,6 +23,10 @@ rl.question('Who you are worker(0) or controller(1) ', (answer) => {
         client.end();
     });
 
+    client.on('$all.events', data => {
+        console.log('Event:', data);
+    });
+
     input();
 });
 

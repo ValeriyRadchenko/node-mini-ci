@@ -45,6 +45,17 @@ protocol.once('connected', () => {
     protocol.send('info', `${process.argv[2]} is started`);
 });
 
+protocol.on('getStatus', () => {
+    protocol.send('status', {
+        name: jobParams.name,
+        type: jobParams.type,
+        pid: process.pid,
+        status: job.status,
+        restarted: job.restarted,
+        startTime: job.startTime
+    });
+});
+
 protocol.on('stop', async pid => {
     if (+pid !== process.pid) {
         return false;
