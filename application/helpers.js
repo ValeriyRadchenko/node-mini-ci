@@ -79,5 +79,36 @@ exports.getRunTime = (startTime, endTime = Date.now()) => {
     }
 };
 
+const merge = (dist, src) => {
 
+    for (let key in src) {
+
+        if (typeof src[key] === 'object' && dist[key]) {
+            merge(dist[key], src[key]);
+            continue;
+        }
+
+        dist[key] = src[key];
+    }
+
+    return dist
+};
+
+const clone = (dist, src) => {
+    for (let key in src) {
+
+        if (typeof src[key] === 'object') {
+            dist[key] = {};
+            clone(src[key], dist[key]);
+            continue;
+        }
+
+        dist[key] = src[key];
+    }
+
+    return dist;
+};
+
+exports.merge = merge;
+exports.clone = clone;
 

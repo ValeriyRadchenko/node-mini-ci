@@ -4,7 +4,14 @@ const config = require('../../config');
 
 const cliUI = require('../cli-ui');
 const logger = require('../logger/logger');
-const { addJob, removeJob, stopApplication, getJobsStatus } = require('./index');
+const {
+    addJob,
+    removeJob,
+    stopApplication,
+    getJobsStatus,
+    getConfig,
+    setConfig
+} = require('./index');
 
 module.exports = function checkEntryPoint(options) {
 
@@ -18,6 +25,10 @@ module.exports = function checkEntryPoint(options) {
 
     if (options.status) {
         return status();
+    }
+
+    if (typeof options.config !== 'undefined') {
+        return userConfig(options.config);
     }
 
     if (options.stop) {
@@ -59,6 +70,24 @@ function remove() {
 function status() {
     getJobsStatus()
         .catch(error => logger.error);
+
+    return true;
+}
+
+function userConfig(options) {
+
+    if (!options) {
+        getConfig();
+    } else {
+        options = options.split(':');
+
+        if (options.length < 2) {
+            getConfig(options[0]);
+            return true;
+        }
+
+        setConfig(options[0], options[1]);
+    }
 
     return true;
 }
