@@ -29,7 +29,7 @@ function patch() {
     versions[2]++;
     packageJSON.version = versions.join('.');
 
-    fs.writeFileSync('./package.json', JSON.stringify(packageJSON));
+    fs.writeFileSync('./package.json', JSON.stringify(packageJSON, null, 2));
 
     return packageJSON;
 }

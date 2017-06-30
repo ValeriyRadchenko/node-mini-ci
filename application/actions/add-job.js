@@ -9,7 +9,7 @@ module.exports = function addJob(job) {
     }
 
     try {
-        fs.writeFileSync(path.resolve(config.homeDir, 'jobs', `${job.name}.json`), JSON.stringify(job));
+        fs.writeFileSync(path.resolve(config.homeDir, 'jobs', `${job.name}.json`), JSON.stringify(job, null, 4));
     } catch (error) {
         logger.error(error);
     }
