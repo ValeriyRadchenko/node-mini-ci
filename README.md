@@ -27,11 +27,11 @@
 
 ### Stop node-mini-ci demonized process
 
-    node-mini-ci --stop [-s]
+    node-mini-ci --stop
     
 ### Get jobs status
 
-    node-mini-ci --statatus
+    node-mini-ci --statatus [-s]
 
 ### Run node-mini-ci in debug mode
 
