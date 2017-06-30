@@ -1,6 +1,7 @@
 const NetSocketClient = require('../connection/net-socket-new/net-socket-client');
 const Table = require('cli-table');
 const colors = require('colors');
+const config = require('../../config');
 
 function checkStatus() {
     return new Promise((resolve, reject) => {
@@ -28,28 +29,37 @@ module.exports = function getJobsStatus() {
 
     return checkStatus()
         .then(jobsStatus => {
+            let { showMonitoring } = config.monitoring;
+
+            let head = ['Name', 'Type', 'pid', 'Status', 'Restarts', 'Start time']
+                .map(item => item.cyan);
+
+            if (showMonitoring) {
+                head.push('CPU(avr)'.cyan);
+                head.push('Memory(avr)'.cyan);
+            }
+
             const table = new Table({
-                head: ['Name', 'Type', 'pid', 'Status', 'Restarts', 'Start time', 'CPU(avr)', 'Memory(avr)']
-                    .map(item => item.cyan)
+                head
             });
 
-            Object.keys(jobsStatus)
-                .forEach(key => {
-                    let status = jobsStatus[key];
-                    let array = [];
+            for (let key in jobsStatus) {
+                let status = jobsStatus[key];
+                let array = [];
 
-                    for (let itemName in status) {
+                for (let itemName in status) {
 
-                        if (itemName === 'status') {
-                            let value = status[itemName];
-                            status[itemName] = (value === 'error') ? value.red : value.green;
-                        }
-
-                        array.push(status[itemName]);
+                    if (itemName === 'status') {
+                        let value = status[itemName];
+                        status[itemName] = (value === 'error') ? value.red : value.green;
                     }
 
-                    table.push(array);
-                });
+                    array.push(status[itemName]);
+                }
+
+                array.splice(head.length, array.length);
+                table.push(array);
+            }
 
             console.log(table.toString());
         });
