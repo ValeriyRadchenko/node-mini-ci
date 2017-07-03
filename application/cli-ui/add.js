@@ -41,23 +41,23 @@ let questions = [
         }
     },
     {
-        message: 'Please enter a git remote (origin is default)',
+        message: 'Please enter a git password',
+        name: 'git_password',
+        type: 'password',
+    },
+    {
+        message: 'Please enter a git remote',
         required: true,
         name: 'git_remote',
         type: 'input',
         default: 'origin'
     },
     {
-        message: 'Please enter a git branch (master is default)',
+        message: 'Please enter a git branch',
         required: true,
         name: 'git_branch',
         type: 'input',
         default: 'master'
-    },
-    {
-        message: 'Please enter a git password',
-        name: 'git_password',
-        type: 'password',
     },
     {
         message: 'Please enter the job check interval in milliseconds',
